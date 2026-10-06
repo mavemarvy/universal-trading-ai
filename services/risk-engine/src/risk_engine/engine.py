@@ -1,0 +1,26 @@
+from .models import RiskContext,RiskDecision,RiskLimits
+
+def evaluate(ctx:RiskContext, limits:RiskLimits)->RiskDecision:
+    reasons=[]
+    if ctx.kill_switch: reasons.append("KILL_SWITCH_ACTIVE")
+    if not ctx.connection_healthy: reasons.append("CONNECTION_UNHEALTHY")
+    if ctx.data_stale: reasons.append("STALE_DATA")
+    if ctx.news_blocked: reasons.append("NEWS_RESTRICTION")
+    if ctx.live_requested and ctx.execution_class not in ("FULL_AUTO","LIMITED_AUTO"): reasons.append("AUTOMATION_NOT_PERMITTED")
+    if ctx.allocated_capital + ctx.proposed_notional > limits.max_trading_allocation: reasons.append("ALLOCATION_LIMIT")
+    if ctx.proposed_risk > limits.max_risk_per_trade: reasons.append("RISK_PER_TRADE_LIMIT")
+    if ctx.current_daily_loss >= limits.max_daily_loss: reasons.append("DAILY_LOSS_LIMIT")
+    if ctx.current_drawdown >= limits.max_drawdown: reasons.append("DRAWDOWN_LIMIT")
+    if ctx.leverage > limits.max_leverage: reasons.append("LEVERAGE_LIMIT")
+    if ctx.open_positions >= limits.max_positions: reasons.append("POSITION_COUNT_LIMIT")
+    if ctx.correlated_exposure + ctx.proposed_notional > limits.max_correlated_exposure: reasons.append("CORRELATED_EXPOSURE_LIMIT")
+    if ctx.platform_exposure + ctx.proposed_notional > limits.max_platform_exposure: reasons.append("PLATFORM_EXPOSURE_LIMIT")
+    if ctx.asset_exposure + ctx.proposed_notional > limits.max_asset_exposure: reasons.append("ASSET_EXPOSURE_LIMIT")
+    if ctx.is_memecoin and ctx.memecoin_exposure + ctx.proposed_notional > limits.max_memecoin_exposure: reasons.append("MEMECOIN_EXPOSURE_LIMIT")
+    if ctx.slippage_bps > limits.max_slippage_bps: reasons.append("SLIPPAGE_LIMIT")
+    if ctx.liquidity < limits.min_liquidity: reasons.append("LIQUIDITY_MINIMUM")
+    if ctx.confidence < limits.min_confidence: reasons.append("CONFIDENCE_MINIMUM")
+    if ctx.expected_edge < limits.min_expected_edge: reasons.append("EXPECTED_EDGE_MINIMUM")
+    if ctx.spread_bps > limits.max_spread_bps: reasons.append("SPREAD_LIMIT")
+    if reasons: return RiskDecision("REJECT",0.0,tuple(reasons))
+    return RiskDecision("APPROVE",ctx.proposed_notional,())
