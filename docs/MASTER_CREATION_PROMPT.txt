@@ -1,0 +1,1855 @@
+MASTER CREATION PROMPT - UNIVERSAL MULTI-MARKET AI TRADING SYSTEM
+Version: Blueprint Implementation Master Prompt v1
+Working name: UNIVERSAL TRADING AI (replace with final product name without changing scope)
+
+COPY EVERYTHING BELOW INTO THE CODING/BUILD AGENT. DO NOT OMIT ANY FEATURE.
+
+======================================================================
+0. ROLE, MISSION, AND NON-NEGOTIABLE DELIVERY STANDARD
+======================================================================
+
+You are the principal architect, quantitative engineer, AI/ML engineer, security engineer, blockchain engineer, backend engineer, frontend engineer, mobile engineer, DevOps engineer, database architect, product designer, QA lead, and trading-systems engineer responsible for building a complete production-grade universal AI trading platform.
+
+The platform must support web, mobile, Telegram bot, Telegram Mini App, and a separate Admin application/page. It must connect to legitimate broker, exchange, DEX, blockchain, market-data, news, and research sources; analyze live conditions; create evidence-backed TradeIntent objects; enforce deterministic user-defined risk limits; and execute trades only on platforms that officially permit automated trading or expose an approved trading interface. Platforms that prohibit automation must fall back to analysis/copilot mode rather than using reverse engineering, UI automation, private APIs, anti-bot bypasses, or prohibited behavior.
+
+Do not build a toy demo. Do not leave placeholder buttons, fake metrics, hard-coded charts, mock-only flows presented as real, empty TODO modules, or UI that cannot reach the backend. Every exposed feature must have working frontend, backend, database schema, validation, permissions, tests, logging, and error states. If an external provider requires credentials, implement the real adapter, configuration UI, validation, sandbox/paper mode where available, and a clear Not Configured state. Never silently substitute fake data in production mode.
+
+Implementation goal: 100% of the blueprint in this prompt. Maintain a FEATURE_REGISTRY with every requirement, implementation status, test status, and deployment status. No feature may be declared complete until its tests pass.
+
+This system assists with high-risk financial activity. It must never promise guaranteed profits, guaranteed stop-loss execution, guaranteed rug prevention, or loss-free trading. Slippage, gaps, illiquidity, failed transactions, exchange outages, MEV, liquidation, chain congestion, and other market risks must be surfaced to users. Start all new accounts in Analysis/Paper mode by default.
+
+======================================================================
+1. PRODUCT SURFACES AND SEPARATE ADMIN ACCESS
+======================================================================
+
+Build all of the following against the same backend and identity system:
+
+A. Public website
+- Product information, supported platforms, market coverage, pricing/plans if enabled, security architecture, risk disclosures, help center, documentation, status, legal pages, and authentication entry points.
+- Suggested URL: https://www.<YOUR_DOMAIN>
+
+B. User web trading application
+- Full trading terminal, dashboards, charts, portfolio, platform connectors, AI analysis, signals, news, on-chain research, memecoin scans, paper trading, replay, settings, risk controls, notifications, learning/tutor features, and account management.
+- Suggested URL: https://app.<YOUR_DOMAIN>
+
+C. Separate Admin application/page
+- It must not share the normal user dashboard navigation.
+- Suggested dedicated URL: https://admin.<YOUR_DOMAIN>
+- Also allow configurable route fallback such as /admin only if required by deployment.
+- Enforce separate admin roles, MFA, hardened sessions, audit logs, IP/device controls if configured, and least privilege.
+
+D. Mobile apps
+- iOS and Android apps with feature parity for core account, chart, signals, analysis, positions, risk controls, connectors, notifications, paper trading, watchlists, memecoin research, and emergency controls.
+- Recommended: React Native + Expo for shared product development, with Kotlin/Java Android native modules and Swift native modules only when platform-specific capabilities require them.
+- Support deep links from Telegram, web, notifications, and broker/OAuth callbacks.
+
+E. Telegram Bot
+- Same user identity and same trading brain; Telegram is an interface, never the trading engine.
+- Telegram outage must not stop risk monitoring, trailing protection, or server-side execution.
+- Commands and button-driven equivalents for dashboard, markets, chart, analyze, news, signals, watchlist, positions, orders, PnL, portfolio, risk, history, token scan, rug check, wallet check, AI assistant, settings, connect, help, emergency stop.
+- Do not request API secrets or broker passwords in Telegram chat. Secure connection flows must open the web app or Telegram Mini App.
+
+F. Telegram Mini App
+- Full interactive market chart, risk/reward tool, Trade Preview, AI scenario projection, analysis panels, order controls, portfolio, token security, wallet graphs, and account/risk settings.
+- Use Telegram authentication validation server-side.
+
+All surfaces must show consistent state because they use the same backend, trade ledger, AI decisions, portfolio engine, and risk engine.
+
+======================================================================
+2. CORE ARCHITECTURAL PRINCIPLE
+======================================================================
+
+The AI must NEVER directly control user money or call an exchange/broker execution API without passing through deterministic policy layers.
+
+Required pipeline:
+
+DATA SOURCES
+ -> NORMALIZATION / PROVENANCE
+ -> SPECIALIST AI + QUANT BRAINS
+ -> MARKET REGIME ENGINE
+ -> STRATEGY ENSEMBLE
+ -> CONFIDENCE / UNCERTAINTY
+ -> TRADE INTENT
+ -> PORTFOLIO ENGINE
+ -> DETERMINISTIC RISK ENGINE
+ -> PLATFORM CAPABILITY CHECK
+ -> EXECUTION POLICY
+ -> PLATFORM ADAPTER
+ -> BROKER / EXCHANGE / DEX
+ -> LIVE MONITORING
+ -> PROFIT PROTECTION / EXIT
+ -> FORENSICS / LEARNING
+
+The AI may recommend actions. Only the deterministic risk/execution stack can approve and send an order.
+
+AI says HOLD + Risk says EXIT = EXIT.
+AI says BUY MORE + allocation exhausted = REJECT.
+Great opportunity + daily loss limit reached = REJECT.
+Profit continues climbing = LET WINNER RUN while protection follows.
+Profit materially reverses or the edge invalidates = PARTIAL CLOSE or EXIT according to deterministic and strategy rules.
+
+======================================================================
+3. RECOMMENDED TECHNOLOGY STACK
+======================================================================
+
+Use a polyglot architecture because the workloads differ.
+
+A. TypeScript / Web
+- Current stable Next.js with App Router at implementation time.
+- React, TypeScript strict mode.
+- Tailwind CSS and shadcn/ui or equivalent accessible component system.
+- TanStack Query for server-state synchronization.
+- Zustand or Redux Toolkit only where client state warrants it.
+- Zod for client/server schema validation where applicable.
+- Trading chart: TradingView Lightweight Charts (open-source) or a properly licensed advanced charting library. Do not unlawfully copy or embed proprietary TradingView components. Add custom overlays for AI zones, forecasts, positions, liquidity, news, and risk/reward.
+- Recharts or Apache ECharts for analytics dashboards.
+- WebSocket/SSE client layer with reconnect, backoff, sequence numbers, and stale-data indicators.
+
+B. Python AI / Quant Brain
+Recommended libraries, pinned and reproducible:
+- FastAPI + Uvicorn/Gunicorn for services.
+- Pydantic v2 for typed contracts.
+- asyncio, httpx, aiohttp, websockets for async ingestion/adapters.
+- NumPy.
+- Polars as the preferred high-performance dataframe engine; Pandas where library compatibility requires it.
+- SciPy, statsmodels.
+- scikit-learn.
+- PyTorch for deep learning.
+- XGBoost and/or LightGBM for tabular/regime models.
+- transformers + sentence-transformers for NLP/embeddings.
+- FinBERT or an equivalent finance-tuned sentiment model, evaluated before production.
+- ONNX Runtime for optimized model inference where useful.
+- Optuna for controlled hyperparameter optimization.
+- MLflow or equivalent model registry/experiment tracking.
+- vectorbt, Backtrader, or an internally built event-driven simulator for research/backtests. Production validation must use the same order/risk assumptions as live execution.
+- TA-Lib or pandas-ta/technical-analysis library as indicator primitives, but never use indicators as stand-alone buy/sell rules.
+- CCXT can be used for rapid exchange coverage/data normalization, but critical execution adapters should prefer official exchange APIs/SDKs and platform-specific behaviors.
+- MetaTrader5 Python package for official MT5 integration where supported.
+- Web3.py for EVM, eth-account for signing abstractions.
+- solana-py / solders or current official/recommended Solana SDK stack for Solana.
+- TON SDK/provider libraries appropriate to the final TON execution architecture.
+- NetworkX and/or graph database clients for wallet/entity relationship research.
+- BeautifulSoup/lxml only for public pages where crawling is permitted; never scrape authenticated/restricted sources against terms. Prefer licensed feeds/APIs/RSS.
+
+C. Rust and/or Go for low-latency / high-reliability services
+Use for:
+- Long-running WebSocket ingestion.
+- High-throughput order-book processing.
+- Execution gateways.
+- Transaction/chain monitoring.
+- Deterministic risk enforcement that must remain responsive if AI services slow down.
+- Connection recovery and heartbeat monitoring.
+- DEX transaction pipelines and low-latency routing.
+
+Recommended Rust ecosystem examples: Tokio, Axum, Reqwest, tungstenite/tokio-tungstenite, Serde, SQLx, Redis/NATS/Kafka clients, tracing/OpenTelemetry.
+Recommended Go ecosystem examples: net/http, Gorilla WebSocket or current maintained alternative, NATS/Kafka/Redis clients, OpenTelemetry, pgx.
+
+D. Java / Kotlin
+- Android native capabilities and native bridges where needed.
+- Optional ta4j for JVM-side indicator/strategy experiments or offline mobile education features, but Python remains the primary AI/quant environment.
+- Do not put authoritative live trading logic only on the phone.
+
+E. Supabase / PostgreSQL - CONTROL PLANE, NOT THE HIGH-FREQUENCY BRAIN
+Use Supabase for:
+- Authentication.
+- Profiles.
+- User plans/subscriptions if enabled.
+- Platform connection metadata.
+- Encrypted credential references, never plaintext secrets.
+- User risk settings.
+- Strategy preferences.
+- Watchlists.
+- Portfolio/account metadata.
+- TradeIntent records.
+- Approved/rejected decisions.
+- Trade history.
+- Paper portfolios.
+- Model and strategy metadata.
+- Platform Capability Registry.
+- Token/project/wallet intelligence graph metadata.
+- Notifications.
+- Audit logs.
+- Admin configuration.
+- Help/tutorial data.
+- Realtime UI updates where appropriate.
+- pgvector for embeddings where the scale is suitable.
+- Row Level Security on every user-sensitive table.
+
+Do NOT use short-lived edge/serverless functions as the core always-on trading brain, market WebSocket daemon, order-book engine, or continuous execution loop. Use them for lightweight webhooks, OAuth callbacks, scheduled low-frequency tasks, secure server operations, and glue logic.
+
+F. High-frequency/time-series storage
+- Keep durable user/account/control data in Supabase Postgres.
+- For large tick/order-book/event volumes, use a dedicated time-series/analytical store such as ClickHouse or TimescaleDB, selected based on deployment and load.
+- Object storage for raw event archives, model artifacts, backtest datasets, and reproducibility snapshots.
+
+G. Event bus / caching
+- Recommended MVP: NATS JetStream for internal events and Redis for cache/ephemeral coordination.
+- Scale option: Redpanda/Kafka for very high-throughput immutable event streams.
+- Every important event must have idempotency key, event timestamp, received timestamp, source, schema version, and correlation/decision ID.
+
+H. Deployment
+- GitHub monorepo.
+- Vercel can host public/user/admin Next.js frontends.
+- Long-running AI workers, WebSocket ingest, execution, and chain watchers must run on persistent compute (Kubernetes, AWS/GCP/Azure containers/VMs, Fly.io, Render, Railway, or another service capable of long-running processes and private networking). Do not force them into serverless request limits.
+- Docker for every backend service.
+- Docker Compose for local development.
+- Kubernetes or an equivalent orchestrator when scale/availability requires it.
+
+I. Observability
+- OpenTelemetry.
+- Prometheus + Grafana.
+- Centralized logs (Loki/ELK/managed equivalent).
+- Sentry or equivalent for frontend/backend errors.
+- Distributed tracing across TradeIntent -> Risk -> Execution -> Exchange acknowledgement.
+
+======================================================================
+4. GITHUB REPOSITORY AND MONOREPO STRUCTURE
+======================================================================
+
+Create a professional monorepo similar to:
+
+/apps
+  /web-public
+  /web-trading
+  /web-admin
+  /mobile
+  /telegram-bot
+  /telegram-miniapp
+/services
+  /api-gateway
+  /market-data-ingestor
+  /market-normalizer
+  /news-intelligence
+  /macro-intelligence
+  /technical-quant-brain
+  /market-regime-engine
+  /strategy-ensemble
+  /confidence-engine
+  /portfolio-engine
+  /risk-engine
+  /execution-gateway
+  /mt5-bridge
+  /ctrader-adapter
+  /cex-adapters
+  /dex-execution
+  /onchain-intelligence
+  /token-security
+  /creator-authenticity
+  /wallet-graph
+  /sniper-bot-intelligence
+  /trade-monitor
+  /profit-protection
+  /backtester
+  /market-replay
+  /model-training
+  /notification-service
+  /research-orchestrator
+/packages
+  /contracts
+  /schemas
+  /ui
+  /charting
+  /platform-registry
+  /strategy-sdk
+  /risk-sdk
+  /shared-types
+  /security
+  /telemetry
+/supabase
+  /migrations
+  /seed
+  /functions
+  /policies
+/infrastructure
+  /docker
+  /k8s
+  /terraform-or-equivalent
+/docs
+/tests
+  /unit
+  /integration
+  /contract
+  /simulation
+  /chaos
+  /security
+  /e2e
+
+Use CODEOWNERS, branch protection, pull-request checks, Dependabot/Renovate, CodeQL, secret scanning, SBOM/dependency audit, release tags, changelog, ADRs (architecture decision records), and environment-specific configuration.
+
+======================================================================
+5. TRADING PLATFORM COMPATIBILITY AND ACCESS REGISTRY
+======================================================================
+
+Build a searchable Platform Compatibility Registry. It must not use only a boolean supported/unsupported flag. Every platform must expose a versioned capability profile.
+
+Initial platform families to include:
+- MetaTrader 4 and MetaTrader 5 brokers.
+- cTrader brokers.
+- Binance.
+- Bybit.
+- OKX.
+- Kraken.
+- Coinbase.
+- Bitget.
+- Gate.
+- KuCoin.
+- Interactive Brokers where applicable.
+- Deriv where applicable.
+- Additional forex/stock/CFD/futures brokers with official APIs/FIX.
+- Solana DEXs/routers such as Jupiter/Raydium/Orca where official integration is available.
+- EVM DEXs/routers such as Uniswap/PancakeSwap and equivalent supported venues.
+- TON ecosystem DEX/router integrations.
+- Additional chains and venues through adapters.
+- ExpertOption-type or IQ Option-type restricted platforms must be classified according to current official rules; if automated trading is not officially allowed, provide Analysis/Copilot only.
+
+Three primary execution classes plus blocked state:
+1. FULL AUTO - official automation/trading API/MT4/MT5/cTrader/FIX/on-chain execution permitted.
+2. LIMITED AUTO - only the officially exposed subset may be automated.
+3. COPILOT - AI analyzes, forecasts, suggests entry/exit/risk, but user performs the final trade manually.
+4. BLOCKED/UNSUPPORTED - connection would require anti-bot circumvention, private API reverse engineering, prohibited automation, or unsafe permissions.
+
+Each platform profile must include at least:
+- Market data availability.
+- Historical candles.
+- Streaming/WebSocket support.
+- Order book/depth.
+- Account balance.
+- Positions.
+- Orders.
+- Market/limit/stop order types.
+- Native SL/TP.
+- Native trailing stop.
+- Partial close.
+- Spot/futures/perpetual/options/forex/stocks/CFDs capabilities as applicable.
+- Leverage/margin.
+- Paper/demo/sandbox.
+- Automation allowed status and source/date last reviewed.
+- Authentication type.
+- API/FIX/MT/cTrader/on-chain connector method.
+- Rate limits.
+- Regional/product restrictions.
+- Minimum order/notional rules.
+- Fee model.
+- Known limitations.
+- Connection health.
+
+Build automatic capability discovery when APIs expose it, but keep an admin-maintained policy layer because legal/terms restrictions cannot be inferred from API methods alone.
+
+Never attempt to bypass restrictions. When automation is prohibited, use Copilot Mode.
+
+======================================================================
+6. UNIVERSAL BROKER / EXCHANGE / DEX ADAPTER CONTRACT
+======================================================================
+
+Create normalized interfaces so the strategy brain does not depend on one platform.
+
+Required logical methods/capabilities:
+- connect/authenticate
+- refresh credentials
+- getCapabilities
+- getMarkets/instruments
+- getSymbolMetadata
+- normalizeSymbol
+- streamQuotes
+- streamTrades
+- streamOrderBook
+- getCandles
+- getBalance/equity/margin
+- getPositions
+- getOpenOrders
+- getOrderHistory
+- calculateMargin where applicable
+- calculateEstimatedFees
+- estimateSlippage
+- placeOrder
+- modifyOrder
+- cancelOrder
+- closePosition
+- partialClose
+- setStopLoss
+- setTakeProfit
+- setTrailingStop if native
+- healthCheck
+- disconnect
+
+If native trailing is unavailable, the server-side Profit Protection Engine may implement a synthetic trailing policy by monitoring price and sending deterministic close/modify instructions, but only where continuous automation is permitted.
+
+Universal symbol normalization must map broker-specific names without losing contract identity, for example EURUSD, EUR/USD, EURUSDm, EURUSD.pro -> a canonical FX:EUR/USD plus venue-specific metadata; BTCUSDT, BTC-USDT, XBTUSD must preserve spot/perpetual/futures differences.
+
+======================================================================
+7. CONNECTION SECURITY MODEL
+======================================================================
+
+Centralized exchanges:
+- Prefer API keys scoped to read + trading only.
+- WITHDRAWAL PERMISSION MUST NOT BE REQUIRED.
+- Prefer exchange subaccounts where supported.
+- Support IP whitelisting where supported.
+- Encrypt secrets using KMS/Vault; store only encrypted references in Supabase.
+- Never expose API secrets to browser/mobile/Telegram logs.
+
+OAuth platforms such as cTrader:
+- Use official OAuth/account authorization.
+- Request only required scopes.
+
+MetaTrader:
+- Use an official/supported MT bridge/terminal integration.
+- Separate broker server/account mapping.
+- Harden and monitor bridge hosts.
+
+DEX/on-chain:
+- Never require unrestricted control of the user's main wallet.
+- Prefer a separate trading wallet, smart-contract vault, delegated session key, or bounded authorization funded only with the amount the user explicitly allocates.
+- Transaction signing must be isolated and audited.
+- Check chain ID, destination, token, amount, slippage, price impact, simulation result, and allowance before signing.
+
+All users must have an instant Disconnect and Emergency Stop.
+
+======================================================================
+8. USER FUND ALLOCATION AND RISK AUTHORITY
+======================================================================
+
+Separate these concepts:
+- Trading Capital: maximum amount the AI may use.
+- Maximum Acceptable Loss: user-defined loss threshold that stops/reduces activity.
+- Profit Target: trigger for stronger profit protection, not necessarily a forced close.
+- Risk Per Trade.
+- Daily/weekly loss limits.
+- Maximum drawdown.
+- Maximum leverage.
+- Maximum concurrent positions.
+- Maximum correlated exposure.
+- Maximum per-platform exposure.
+- Maximum per-asset/per-sector exposure.
+- Separate memecoin/new-token limits.
+
+Example supported modes:
+- Conservative.
+- Balanced.
+- Aggressive.
+- Custom.
+Hard user allocation and loss limits always override preset behavior.
+
+Warn users that exact maximum loss cannot be guaranteed because of gaps, slippage, liquidation, illiquidity, failed transactions, and exchange/chain outages.
+
+======================================================================
+9. UNIVERSAL REAL-TIME DATA LAYER
+======================================================================
+
+Ingest and normalize:
+- Forex quotes/candles/ticks/spreads.
+- Crypto spot/perpetual/futures prices.
+- Order books.
+- Trades/tape.
+- Volume.
+- Funding rates.
+- Open interest.
+- Liquidations.
+- Options data where available.
+- Stocks/indices/commodities/futures data where licensed.
+- Economic releases.
+- Central bank events/speeches.
+- Breaking financial/crypto news.
+- Exchange listings/delistings.
+- Hacks/security incidents.
+- Regulatory announcements.
+- Blockchain blocks, transactions, logs/events.
+- DEX pools/pairs.
+- Liquidity changes.
+- Token mint/supply changes.
+- Wallet transfers.
+- Exchange inflows/outflows.
+
+Build provider abstraction and failover. Never let a single data source become an invisible single point of truth.
+
+Every normalized datum needs:
+- source
+- original symbol/entity
+- canonical symbol/entity
+- source timestamp
+- received timestamp
+- freshness/lag
+- confidence/quality
+- licensing/use constraints metadata where needed
+- sequence/version
+
+======================================================================
+10. DATA PROVENANCE AND TRUTH ENGINE
+======================================================================
+
+Before the AI trusts important facts, evaluate:
+- source reliability
+- data freshness
+- source agreement/disagreement
+- duplicate news
+- corrections/retractions
+- stale feeds
+- impossible prices/outliers
+- cross-venue price discrepancies
+- chain reorg/finality where relevant
+- social rumor vs verified announcement
+
+Store evidence/provenance with each decision. Users and admins must be able to inspect why a fact was considered true.
+
+If feeds disagree materially, reduce confidence, pause affected strategies, or switch to NO TRADE.
+
+======================================================================
+11. SPECIALIST AI / QUANT BRAINS
+======================================================================
+
+Do not create one opaque model that simply outputs BUY/SELL. Build specialist modules whose outputs are structured and auditable:
+
+- Technical Analysis Brain.
+- Quant/Statistical Brain.
+- Price Action / Market Structure Brain.
+- Trend Brain.
+- Momentum Brain.
+- Volatility Brain.
+- Support/Resistance Brain.
+- Liquidity Brain.
+- Order Flow / Order Book Brain.
+- Cross-market Correlation Brain.
+- News NLP Brain.
+- Macro/Economic Brain.
+- Sentiment Brain.
+- Market Regime Brain.
+- On-chain Brain.
+- Whale/Exchange Flow Brain.
+- Wallet Graph Brain.
+- Token Security Brain.
+- Creator/Project Authenticity Brain.
+- Sniper/Bot/Bundle Intelligence Brain.
+- Manipulation/Adversarial Detection Brain.
+- Execution Quality Brain.
+- Portfolio Brain.
+
+Each specialist returns structured scores, evidence IDs, confidence, freshness, and reasons rather than unstructured text only.
+
+======================================================================
+12. MARKET REGIME ENGINE
+======================================================================
+
+The system must classify the current market before selecting a strategy. Support at least:
+- Strong uptrend.
+- Weak uptrend.
+- Strong downtrend.
+- Weak downtrend.
+- Range.
+- Breakout.
+- Retest.
+- High volatility.
+- Low volatility.
+- News-driven market.
+- Liquidity stress/crisis.
+- Risk-on.
+- Risk-off.
+- Abnormal/manipulated conditions.
+- Accumulation.
+- Markup.
+- Distribution.
+- Markdown.
+- Memecoin mania/speculative regime.
+
+Strategies are enabled/disabled or reweighted by regime. A mean-reversion strategy must not blindly operate in strong trend conditions; a trend strategy must not be forced in a tight range.
+
+======================================================================
+13. STRATEGY ENGINE AND ENSEMBLE
+======================================================================
+
+Support multiple independently testable strategies, including but not limited to:
+- Trend following.
+- Breakout/retest.
+- Mean reversion.
+- Momentum.
+- Scalping.
+- Swing trading.
+- Event/news reaction with safety delays/filters.
+- Order-flow/liquidity approaches.
+- Cross-market/correlation signals.
+- Crypto/perpetual funding/open-interest setups.
+- On-chain confirmation strategies.
+- Memecoin/new-pair opportunity strategies after security checks.
+
+The ensemble must combine specialist scores based on market, regime, timeframe, asset, venue, costs, and historical out-of-sample performance.
+
+Never encode viral social-media patterns as guaranteed signals. Candlestick patterns, indicators, support/resistance, liquidity sweeps, accumulation/distribution, and similar concepts are evidence inputs only.
+
+======================================================================
+14. CONFIDENCE, UNCERTAINTY, AND CALIBRATION
+======================================================================
+
+AI confidence numbers must be calibrated against real outcomes. Track whether 70%, 80%, etc. confidence bins historically behave as expected.
+
+Inputs to confidence include:
+- model agreement
+- evidence freshness
+- source quality
+- regime certainty
+- forecast dispersion
+- spread/slippage uncertainty
+- liquidity
+- data gaps
+- news/event uncertainty
+- model drift
+
+The engine must be able to say UNKNOWN or NO TRADE.
+
+======================================================================
+15. NO-TRADE ENGINE
+======================================================================
+
+A core capability is deciding not to trade.
+
+Reject or defer setups when:
+- expected edge is insufficient
+- model disagreement is high
+- confidence is poorly calibrated
+- data is stale or conflicting
+- liquidity is too low
+- spread/slippage is abnormal
+- news risk is high
+- risk limits are reached
+- correlations make additional exposure unsafe
+- platform connection is degraded
+- authenticity/security checks fail
+- execution quality is poor
+- market is outside strategy regime
+
+Return the reason and reevaluation trigger.
+
+======================================================================
+16. NEWS AND MACRO INTELLIGENCE
+======================================================================
+
+Build licensed/public-source adapters rather than relying on a single provider. Possible provider categories include professional financial news feeds, economic-calendar providers, exchange announcements, central bank/government feeds, RSS, and public project channels where use is permitted.
+
+Pipeline:
+NEWS ARRIVES
+ -> source validation
+ -> de-duplication
+ -> entity extraction
+ -> affected assets/currencies/sectors
+ -> event classification
+ -> sentiment/direction
+ -> importance/severity
+ -> cross-source verification
+ -> compare actual price reaction
+ -> update market regime/strategy risk
+
+Examples of event types:
+- CPI/inflation.
+- Jobs reports.
+- Interest-rate decisions.
+- Central bank statements.
+- Geopolitical shocks.
+- Regulatory changes.
+- Exchange listing/delisting.
+- Hacks/exploits.
+- Stablecoin issues.
+- Protocol upgrades.
+
+The AI must not chase the first volatile candle by default. It should account for spread expansion, whipsaw, delayed interpretation, and market normalization.
+
+======================================================================
+17. ON-CHAIN AND BLOCKCHAIN INTELLIGENCE
+======================================================================
+
+Continuously analyze supported chains for:
+- blocks/transactions
+- token deployments
+- pool creation
+- liquidity addition/removal
+- mint/freeze/owner/proxy/admin authorities
+- top holders
+- supply concentration
+- whale movements
+- exchange deposits/withdrawals
+- deployer/team wallets
+- wallet clusters
+- fresh-wallet behavior
+- initial buyers
+- funding-wallet relationships
+- suspicious transaction patterns
+- sniper activity
+- bundled purchases
+- MEV indicators
+- contract changes/upgrades where applicable
+
+Support Solana, EVM chains, TON, and future chain adapters.
+
+======================================================================
+18. MEMECOIN / NEW TOKEN SECURITY AND SNIPER MODE
+======================================================================
+
+New token workflow:
+NEW POOL/TOKEN
+ -> contract/security inspection
+ -> creator/deployer investigation
+ -> wallet-network analysis
+ -> liquidity analysis
+ -> honeypot/sell simulation
+ -> holder concentration
+ -> sniper/bundle analysis
+ -> volume authenticity
+ -> market-quality score
+ -> risk calculation
+ -> strategy confirmation
+ -> EXECUTE / WATCH / REJECT
+
+Security checks include:
+- honeypot behavior
+- sellability
+- buy/sell taxes
+- actual transaction/sell simulation
+- mint authority
+- freeze authority
+- owner/admin privileges
+- proxy/upgradability
+- suspicious privileged functions
+- LP ownership
+- LP lock/burn status where meaningful
+- liquidity depth
+- price impact
+- creator supply
+- top-holder concentration
+- bundled supply
+- suspicious initial buys
+- fake/wash volume
+- known malicious-address history
+- contract/token security providers such as GoPlus or equivalent
+- malicious report sources such as Chainabuse or equivalent
+- honeypot simulation providers such as Honeypot.is or equivalent
+
+Never claim a scanner guarantees no rug. Insiders can dump and malicious behavior can emerge later.
+
+======================================================================
+19. CREATOR / PROJECT AUTHENTICITY AND RUG HISTORY ENGINE
+======================================================================
+
+This is mandatory.
+
+For every new project/token, investigate:
+- deployer wallet(s)
+- funding wallet(s)
+- linked wallets/clusters
+- prior tokens/projects
+- previous liquidity removals
+- previous creator dumps
+- mint/freeze abuse
+- malicious address reports
+- prior project outcomes
+- domains/websites
+- documentation/whitepapers
+- public team claims
+- GitHub/project activity where applicable
+- official social accounts
+- account age/history
+- previous usernames where legitimately available
+- fake/bot engagement likelihood
+- community growth anomalies
+- Telegram/Discord/public-channel history where permitted
+- partnership/listing claims
+- copied websites/docs/contracts
+- public audit claims
+
+Build a persistent Creator Reputation Graph and Project Authenticity Score.
+
+Evidence classifications:
+- CONFIRMED RUG: strong on-chain evidence and/or verified malicious reports.
+- HIGHLY LIKELY RUG: multiple strong independent indicators.
+- SUSPICIOUS: abnormal behavior but insufficient proof.
+- PROJECT FAILURE: price/project failed without sufficient evidence of intentional rug.
+- UNKNOWN: insufficient history.
+
+Do not accuse a real person without evidence. Blockchain wallets are pseudonymous; cluster wallet/entity behavior with confidence scores rather than asserting unsupported human identity.
+
+Cross-chain relationship scoring can use evidence such as common funding source, withdrawal patterns, deployment templates, timing correlation, shared domain/social accounts, or contract fingerprints, with explicit confidence rather than certainty.
+
+Example persistent entities/tables:
+- creator_entities
+- wallet_entities
+- wallet_links
+- project_entities
+- token_launches
+- creator_project_links
+- security_incidents
+- rug_events
+- liquidity_events
+- scam_reports
+- social_identities
+- domains
+- research_evidence
+- risk_scores
+- risk_score_history
+
+======================================================================
+20. MULTI-DEPTH RESEARCH ORCHESTRATOR
+======================================================================
+
+Do not waste expensive deep research on every normal candle. Provide levels:
+
+FAST SCAN
+- milliseconds/seconds where possible
+- contract, liquidity, holders, basic malicious flags, core price/volume state
+
+DEEP SCAN
+- creator wallets, prior projects, social/public authenticity, linked wallets, multiple data sources
+
+FORENSIC SCAN
+- cross-chain graph, historical launches, wallet clustering, scam databases, funding paths, public project relationships, contradictory claims
+
+Research depth is selected by market type, unknown-asset risk, user settings, position size, anomaly score, and confidence. A brand-new memecoin should automatically require stronger authenticity checks than BTC/USDT.
+
+======================================================================
+21. MANIPULATION AND ADVERSARIAL DETECTION
+======================================================================
+
+Detect and score, without overclaiming certainty:
+- spoofing indications
+- wash trading
+- fake volume
+- coordinated pump activity
+- bot-generated social hype
+- sudden/fabricated liquidity
+- suspicious order-book behavior
+- sandwich/MEV conditions
+- abnormal priority fees
+- suspicious clusters exiting together
+- misleading token metadata
+- fake/counterfeit project claims
+- fake news/rumor bursts
+
+Use labels such as possible/suspected/confirmed depending on evidence.
+
+======================================================================
+22. TRADE INTENT CONTRACT
+======================================================================
+
+The AI creates a structured TradeIntent. It never directly executes.
+
+Minimum fields:
+- intent_id
+- user_id/account_id
+- platform_id
+- instrument canonical ID + venue symbol
+- market type
+- action: LONG / SHORT / BUY / SELL / REDUCE / CLOSE / WAIT / NO_TRADE
+- strategy ID/version
+- market regime
+- proposed entry/order type
+- position size proposal
+- stop/invalidation
+- profit targets if applicable
+- trailing/profit-protection policy
+- maximum slippage
+- maximum fee/price impact
+- leverage proposal
+- confidence + calibration metadata
+- specialist scores
+- evidence/provenance IDs
+- news-risk state
+- liquidity/execution-quality state
+- token/security/creator risk where applicable
+- expiration time
+- model versions
+- reason summary
+
+All TradeIntent payloads must validate against versioned schemas.
+
+======================================================================
+23. DETERMINISTIC RISK ENGINE
+======================================================================
+
+The risk engine has final authority and must be deterministic/replayable.
+
+Required checks:
+- user allowed this market/platform/instrument
+- available allocated capital
+- max risk per trade
+- stop distance/value
+- daily/weekly loss limit
+- maximum drawdown
+- maximum leverage
+- maximum margin usage
+- correlated exposure
+- asset/sector/platform exposure
+- memecoin/new-token exposure
+- concurrent position count
+- expected reward/risk threshold if configured
+- spread
+- slippage
+- fees
+- liquidity
+- price impact
+- order size/minimum notional
+- news/event risk
+- platform capability/automation permission
+- connection health
+- stale data
+- model confidence/uncertainty
+- security/authenticity score for on-chain assets
+- kill-switch state
+
+Position sizing concept:
+Capital at risk = account equity x configured risk limit.
+Position size = capital at risk / stop-loss distance/value, adjusted for lot/tick/contract rules, fees, slippage, liquidity, and leverage.
+
+Risk states and hard limits must remain active even if AI/LLM services are down.
+
+======================================================================
+24. PORTFOLIO BRAIN
+======================================================================
+
+Treat all accounts and positions as a coordinated portfolio where permission allows.
+
+It must understand that long BTC, ETH, SOL, and several memecoins can represent one correlated crypto risk even when opened on different platforms.
+
+Track:
+- gross/net exposure
+- asset exposure
+- currency exposure
+- sector exposure
+- chain exposure
+- strategy exposure
+- venue exposure
+- leverage
+- margin
+- correlations
+- concentration
+- realized/unrealized PnL
+- drawdown
+- liquidity risk
+- tail risk
+
+The Portfolio Brain can reduce/reject new TradeIntents before execution.
+
+======================================================================
+25. PROFIT TARGET, LET-WINNERS-RUN, AND PROFIT PROTECTION
+======================================================================
+
+A user profit target must NOT automatically force an immediate close unless the user chooses that mode.
+
+Default behavior:
+- Before target: normal strategy management.
+- Target reached: activate Profit Protection Mode.
+- Continue monitoring and update peak profit.
+- Let winner run while market structure/edge remains healthy.
+- Tighten protection progressively as gains increase.
+- Exit/trim if profit materially reverses, structure breaks, momentum deteriorates, news risk changes, liquidity disappears, or deterministic trailing rules trigger.
+
+Support:
+- peak-profit tracking
+- dynamic trailing stop
+- ATR/volatility trailing
+- market-structure trailing behind swing/support/resistance/liquidity levels
+- break-even protection
+- partial profit taking
+- momentum deterioration
+- trend invalidation
+- time-based exit
+- news protection
+- portfolio-level profit floor
+- abnormal windfall protection
+
+Example progressive protection concept:
+- below target: normal
+- target reached: protection activated
+- 1x-1.5x target: allow wider continuation
+- 1.5x-2x: moderate trail
+- 2x-3x: tighter protection
+- unusually large gain: aggressively protect windfall
+
+Portfolio-level floor example: target +100, peak session +300, configured maximum giveback 15% -> protected session floor roughly +255, subject to real executable prices and slippage.
+
+======================================================================
+26. LIVE POSITION MONITOR AND EXIT INTELLIGENCE
+======================================================================
+
+State machine example:
+SCAN
+ -> ANALYZE
+ -> WAIT_FOR_SETUP
+ -> CALCULATE_RISK
+ -> ENTER
+ -> MONITOR
+ -> MOVE_TO_BREAK_EVEN
+ -> PROTECT_PROFIT
+ -> LET_WINNER_RUN
+ -> RECORD_NEW_PEAK
+ -> TRAIL_PEAK
+ -> EXIT_WHEN_EDGE_DETERIORATES
+ -> SECURE_RESULT
+ -> FORENSICS
+ -> SEARCH_NEXT_SETUP
+
+For crypto/memecoins, exits also watch:
+- liquidity removal/disappearance
+- whale/deployer selling
+- contract/admin changes
+- abnormal tax changes
+- suspicious wallet clusters
+- other sniper/bot exits
+- failed sell simulation
+- chain congestion/transaction failure risk
+
+======================================================================
+27. EXECUTION INTELLIGENCE
+======================================================================
+
+A correct signal can still lose because of bad execution. Implement:
+- current spread
+- order-book depth
+- slippage prediction
+- price impact
+- venue fee estimate
+- limit vs market order selection
+- post-only/reduce-only where appropriate
+- fill probability
+- partial fill handling
+- order slicing for size where allowed
+- retry rules with idempotency
+- stale quote protection
+- sequence/nonce handling
+- rejection/error interpretation
+- latency metrics
+- post-trade execution-quality report
+
+Strategies must be evaluated after real/estimated fees and slippage, never only on ideal chart prices.
+
+======================================================================
+28. NATIVE AI MARKET TERMINAL AND CHARTING
+======================================================================
+
+Build a first-class internal market terminal rather than forcing users to leave the platform.
+
+Required chart capabilities:
+- live candlesticks
+- line/area alternatives
+- multiple timeframes
+- zoom/pan/crosshair
+- watchlists
+- compare assets
+- indicators
+- drawing tools
+- support/resistance/trend lines
+- volume
+- market depth/order book where available
+- news markers
+- economic-event markers
+- AI signal overlays
+- liquidity zones
+- demand/supply/structure zones
+- market regime annotation
+- open position overlays
+- stop/target/trailing lines
+- current/peak/protected PnL
+- on-chain/security overlays for crypto/memecoins
+
+Implement the equivalent of a Long Position / Short Position / Risk-Reward tool:
+- entry
+- stop loss
+- target(s)
+- possible loss
+- possible gain
+- risk/reward
+- fees/slippage
+- position size
+- margin/leverage impact
+- AI confidence and risk state
+
+======================================================================
+29. TRADE PREVIEW AND OUTCOME PROJECTION
+======================================================================
+
+Before execution, users can select "Preview Trade", "Simulate Trade", or "What if I buy/sell here?".
+
+Show multiple probabilistic scenarios, NOT a guaranteed future path:
+- bullish/upside scenario
+- neutral/range scenario
+- bearish/downside scenario
+
+Projection may use ensembles, historical analogs, volatility distributions, structure, regime, order flow, news, and on-chain state. Display probability bands/cones and invalidation levels. Clearly label all outputs as probabilistic estimates.
+
+Preview includes:
+- proposed entry
+- SL/invalidation
+- targets
+- amount at risk
+- possible reward
+- R:R
+- estimated fees/slippage
+- margin impact
+- portfolio impact
+- confidence
+- conditions that invalidate the setup
+- AI recommendation: execute / wait / watch / reject
+
+======================================================================
+30. MARKET REPLAY, BACKTESTING, PAPER TRADING, AND DIGITAL TWIN
+======================================================================
+
+Modes:
+1. Analysis Only.
+2. Paper Trading.
+3. Approval Required.
+4. Bounded Automated Execution.
+
+Build historical Market Replay so a user/admin/model can replay past candles/ticks/order books/news/blockchain events through the SAME strategy/risk interfaces used live.
+
+Stress scenarios should include historical flash crashes, extreme volatility, major macro releases, crypto collapses, exchange outages, liquidity collapses, and rug-pull patterns.
+
+Backtests must account for:
+- fees
+- spread
+- slippage
+- latency assumptions
+- partial fills
+- liquidity constraints
+- funding
+- borrow/financing where applicable
+- survivorship/lookahead/data leakage
+
+Require walk-forward/out-of-sample validation.
+
+======================================================================
+31. BEGINNER GUARDIAN + TRADING INTELLIGENCE TUTOR
+======================================================================
+
+New traders must not be left blind.
+
+For chart concepts such as candles, hammer, doji, morning/evening star, harami, three black crows, support/resistance, liquidity, accumulation/distribution, spread, margin, leverage, lot size, stop loss, take profit, funding, liquidation, order book, volume, RSI, etc.:
+- explain in plain language
+- show contextual evidence
+- never imply a single pattern guarantees a trade
+- explain confirmation and invalidation
+- show current account-specific risk impact
+
+Build tap-to-explain tooltips/panels.
+
+Aggregate exposure monitor is mandatory. If the user opens many small same-direction positions, show total exposure, not only each ticket.
+
+Example: ten XAUUSD 0.02 positions must be presented as 0.20 total lots plus total risk/margin/correlation.
+
+======================================================================
+32. CLAIM VERIFICATION / SOCIAL-MEDIA STRATEGY CHECKER
+======================================================================
+
+Allow users to paste a claim, URL where legally accessible, text, screenshot, or uploaded clip for educational verification.
+
+Examples:
+- "Three black crows means sell immediately."
+- "This strategy cannot lose."
+- "A 0.02 lot is always safe."
+
+Return:
+- verdict such as Accurate / Partly True / Oversimplified / Misleading / Unsupported
+- what is true
+- what is missing
+- market/context conditions
+- risk implications
+- evidence sources when available
+
+Do not blindly import social-media advice into live trading rules.
+
+======================================================================
+33. BEHAVIORAL / TRADING PSYCHOLOGY SAFEGUARDS
+======================================================================
+
+Detect behavior patterns without diagnosing the user:
+- rapid loss chasing
+- increasing size after losses
+- excessive re-entry after stop outs
+- repeated manual override of hard recommendations
+- unusual leverage escalation
+- abnormal trade frequency
+- trading outside configured strategy/risk windows
+
+Respond with factual risk warnings and enforce configured limits. Never shame or emotionally diagnose the user.
+
+======================================================================
+34. TELEGRAM BOT EXPERIENCE
+======================================================================
+
+Provide command and inline-button UX. Suggested commands:
+/start
+/dashboard
+/markets
+/chart <symbol>
+/analyze <symbol>
+/news
+/signals
+/watchlist
+/positions
+/orders
+/pnl
+/portfolio
+/risk
+/history
+/scan <token_or_contract>
+/rugcheck <contract>
+/walletcheck <address>
+/connect
+/ai
+/settings
+/help
+
+Example signal card content:
+- symbol
+- direction
+- AI score/confidence
+- market regime
+- risk
+- proposed entry
+- stop
+- targets
+- news risk
+Buttons: Open Chart, Full Analysis, Preview Trade, Approve Trade if mode allows, Watch, Reject.
+
+Live trade card:
+- entry/current
+- PnL
+- peak PnL
+- protected floor
+- AI status (HOLD / PROTECT / PARTIAL CLOSE / EXIT)
+Buttons: View Chart, Partial Close, Close Trade, Emergency Stop.
+
+Token scan card:
+- security
+- liquidity
+- creator reputation
+- holder distribution
+- sniper/bundle concentration
+- social/project authenticity
+- prior projects/rugs
+- overall risk
+Buttons: Full Investigation, Creator History, Wallet Graph, Watch Token.
+
+Emergency stop must be prominent and require confirmation for destructive close-all actions.
+
+======================================================================
+35. AI CONVERSATIONAL EXPLANATIONS
+======================================================================
+
+Users can ask questions such as:
+- Why are you holding my BTC trade?
+- Why did you reject this trade?
+- What changed since entry?
+- Find the best setups I am allowed to trade.
+- Why is this token risky?
+
+The AI answer must reference current structured facts from the system, not invent a reason. It must distinguish facts, estimates, and uncertainty.
+
+======================================================================
+36. SUPABASE DATA MODEL - MINIMUM DOMAIN TABLES
+======================================================================
+
+Create migrations, indexes, foreign keys, RLS policies, audit triggers, and partitioning/retention where appropriate. Minimum logical tables/entities include:
+
+Identity/control:
+- profiles
+- user_roles
+- admin_roles
+- user_preferences
+- notification_preferences
+- user_risk_profiles
+- automation_modes
+- user_market_permissions
+- user_strategy_preferences
+
+Platform connectivity:
+- trading_platforms
+- platform_capability_versions
+- platform_terms_reviews
+- user_platform_connections
+- credential_references
+- connection_health_events
+- broker_accounts
+- exchange_accounts
+- wallet_vaults
+
+Market/reference:
+- canonical_instruments
+- venue_instruments
+- symbol_mappings
+- market_sessions
+- economic_events
+- data_providers
+- provider_health
+
+AI/models/strategies:
+- models
+- model_versions
+- model_metrics
+- model_deployments
+- strategies
+- strategy_versions
+- strategy_regime_rules
+- strategy_performance
+- feature_definitions
+- calibration_metrics
+
+Decisions/trades:
+- trade_intents
+- specialist_assessments
+- evidence_records
+- risk_decisions
+- execution_requests
+- execution_events
+- orders
+- fills
+- positions
+- position_events
+- profit_protection_states
+- portfolio_snapshots
+- pnl_snapshots
+- paper_accounts
+- paper_orders
+- replay_sessions
+- backtest_runs
+
+Crypto intelligence:
+- chains
+- tokens
+- pools
+- wallet_entities
+- wallet_links
+- creator_entities
+- project_entities
+- creator_project_links
+- token_launches
+- security_scans
+- security_incidents
+- rug_events
+- liquidity_events
+- scam_reports
+- social_identities
+- domains
+- research_evidence
+- risk_scores
+- risk_score_history
+- sniper_clusters
+- holder_snapshots
+
+Operations:
+- notifications
+- alerts
+- system_incidents
+- kill_switch_events
+- audit_logs
+- admin_actions
+- feature_registry
+- system_config_versions
+
+High-volume ticks/order books can live in the dedicated time-series store; store references/summaries in Postgres.
+
+======================================================================
+37. MODEL LEARNING AND GOVERNANCE
+======================================================================
+
+Store for every trade decision:
+- what AI saw
+- features
+- strategy selected
+- predictions
+- confidence
+- evidence
+- what happened after
+- maximum favorable excursion
+- maximum adverse excursion
+- exit reason
+- market regime
+- relevant news
+- realized cost/slippage
+- whether prediction/calibration was accurate
+
+Do NOT permit a live self-learning model to silently rewrite trading policy.
+
+Promotion pipeline:
+COLLECT EXPERIENCE
+ -> TRAIN OFFLINE
+ -> VALIDATE DATA
+ -> BACKTEST
+ -> WALK-FORWARD
+ -> PAPER/SHADOW TRADE
+ -> COMPARE WITH CURRENT MODEL
+ -> HUMAN/ADMIN APPROVAL POLICY
+ -> LIMITED CAPITAL CANARY
+ -> PRODUCTION
+ -> MONITOR
+ -> ROLLBACK IF NEEDED
+
+Every model/strategy has version, dataset lineage, metrics, deployment status, and rollback.
+
+======================================================================
+38. CONTINUOUS PERFORMANCE BRAIN
+======================================================================
+
+Track strategy/model performance by:
+- market
+- instrument
+- timeframe
+- regime
+- venue
+- user risk mode
+- execution quality
+- fees/slippage
+
+If performance deteriorates statistically, reduce allocation, disable strategy, or require review according to policy. Never continue simply because a strategy worked historically.
+
+======================================================================
+39. FAILURE DETECTION AND KILL SWITCHES
+======================================================================
+
+Kill or pause affected trading when:
+- price feeds disagree materially
+- feed is stale
+- clock/time sync drifts
+- API errors spike
+- broker acknowledgements become inconsistent
+- account equity cannot be reconciled
+- spreads explode
+- liquidity disappears
+- execution latency exceeds limits
+- news/macro feed fails during dependent strategy
+- chain RPC is behind/unhealthy
+- simulation/signing checks fail
+- model outputs become out-of-distribution/abnormal
+- risk service is unavailable
+- credential permissions unexpectedly change
+- platform terms/capability policy is revoked
+
+Provide:
+- global emergency stop
+- per-user stop
+- per-account stop
+- per-platform stop
+- per-strategy stop
+- close-only mode
+- no-new-orders mode
+- optional close-all according to user/admin policy
+
+Risk and kill switches must not depend on an LLM being available.
+
+======================================================================
+40. TRADE FORENSICS AND DECISION JOURNAL
+======================================================================
+
+Every trade must be reconstructable:
+- data/evidence snapshot
+- specialist scores
+- model versions
+- strategy version
+- regime
+- TradeIntent
+- risk decision
+- position-size calculation
+- platform capability state
+- execution requests/acknowledgements/fills
+- fees/slippage
+- modifications
+- peak/protected profit
+- exit decision
+- final outcome
+
+User-facing explanation and admin-level forensic detail are separate permissions/views.
+
+======================================================================
+41. ADMIN APPLICATION - FULL REQUIREMENTS
+======================================================================
+
+Separate Admin UI must include:
+- system overview/health
+- users/accounts
+- platform registry and capability policies
+- connector health
+- data provider health
+- market data latency
+- strategy registry
+- model registry/deployments
+- risk-policy templates
+- user risk override permissions with audit
+- global/per-platform kill switches
+- incident management
+- token/creator intelligence review
+- false-positive/false-negative security review
+- scam report evidence management
+- research source/provider configuration
+- news provider configuration
+- model calibration/performance dashboards
+- backtests/replays
+- paper/live comparison
+- execution quality
+- fee/slippage analytics
+- audit logs
+- admin logs
+- feature registry
+- API keys/provider-secret references
+- notification templates
+- help/tutorial content
+- subscription/plan controls if monetized
+
+Admin cannot silently change historical trade records. Critical configuration changes must be versioned/audited, and sensitive actions require step-up authentication.
+
+======================================================================
+42. USER DASHBOARD INFORMATION ARCHITECTURE
+======================================================================
+
+Core areas:
+- Home / Overview
+- Markets
+- AI Market Terminal
+- Forex
+- Crypto
+- Memecoins
+- Stocks/Indices/Commodities/Futures where connected
+- Opportunities
+- Signals
+- Open Positions
+- Orders
+- Portfolio
+- Risk
+- News & Macro
+- Wallet Network
+- Token Security
+- Creator/Project Research
+- Sniper/Bot Activity
+- Platform Connections
+- Watchlists
+- Alerts
+- Paper Trading
+- Backtesting
+- Market Replay
+- Trade History
+- AI Decision Journal
+- Learning / Beginner Guardian
+- Settings
+- Emergency Stop
+
+Responsive for phone, tablet, and desktop.
+
+======================================================================
+43. MARKET TERMINAL BEGINNER MODE VS PRO MODE
+======================================================================
+
+Beginner Mode:
+- simplified chart
+- plain-language explanations
+- limited clutter
+- prominent total risk
+- preview required before manual execution
+- tutor tooltips
+- aggregate exposure warnings
+
+Pro Mode:
+- advanced indicators
+- multi-pane views
+- order book
+- cross-asset comparison
+- detailed AI scores
+- on-chain/wallet graph overlays
+- manual drawing tools
+- deeper execution settings subject to risk limits
+
+Do not hide risk in either mode.
+
+======================================================================
+44. DATA/NEWS/ON-CHAIN PROVIDER STRATEGY
+======================================================================
+
+Implement provider interfaces so sources are replaceable. Potential categories/examples to evaluate and license appropriately at implementation time:
+- Exchange/broker official REST/WebSocket feeds.
+- MetaTrader/cTrader official interfaces.
+- Professional or licensed market/news providers.
+- Economic calendar/macro providers.
+- Public central-bank/government feeds.
+- Crypto market-data providers.
+- Solana RPC/indexers such as Helius/QuickNode/Alchemy-style providers where appropriate.
+- EVM RPC/indexers and The Graph-like sources.
+- TON RPC/indexer providers.
+- Security providers such as GoPlus-equivalent.
+- Scam/report intelligence such as Chainabuse-equivalent.
+- Honeypot/simulation services.
+
+Never hard-code one commercial provider into domain logic. Use adapters and health/failover.
+
+======================================================================
+45. AUTHENTICATION, AUTHORIZATION, SECURITY, AND PRIVACY
+======================================================================
+
+- Supabase Auth or equivalent integrated identity.
+- MFA for admins; offer MFA to users.
+- RLS everywhere applicable.
+- Least privilege service roles.
+- Secrets stored in managed secret manager/KMS/Vault.
+- Encryption in transit and at rest.
+- Signed webhooks.
+- CSRF protection where applicable.
+- Rate limiting.
+- Abuse detection.
+- Session/device management.
+- Audit every privileged action.
+- PII minimization.
+- Avoid storing raw broker passwords if OAuth/API token alternatives exist.
+- API-key rotation/revocation.
+- Secure backup and restore.
+- Dependency and container vulnerability scanning.
+- Threat model for credential theft, forged signals, market-data poisoning, malicious token metadata, replayed webhooks, unauthorized orders, and wallet-draining attempts.
+
+======================================================================
+46. NOTIFICATIONS AND ALERTS
+======================================================================
+
+Support:
+- in-app
+- push notifications
+- Telegram
+- email where configured
+
+Alert categories:
+- setup found
+- approval requested
+- trade opened
+- trade modified
+- partial close
+- trade closed
+- target reached/profit protection activated
+- risk threshold approaching
+- risk threshold hit
+- connection degraded
+- platform disconnected
+- high-impact news
+- token/creator risk changed
+- liquidity removed
+- whale/deployer movement
+- kill switch activated
+
+Deduplicate alerts and allow user preferences without letting users disable mandatory critical account/security/risk notices.
+
+======================================================================
+47. PAPER MODE AND SAFE ONBOARDING
+======================================================================
+
+Default onboarding sequence:
+1. Create account.
+2. Select experience level.
+3. Choose markets.
+4. Configure risk profile.
+5. Connect no account / demo / supported account.
+6. Begin Analysis/Paper mode.
+7. Teach chart/risk basics.
+8. Run paper trades and show forensics.
+9. If user requests automation, require explicit setup and acknowledgements.
+10. Start with bounded capital and conservative safety defaults.
+
+No automatic live trading simply because a user connected an account.
+
+======================================================================
+48. TESTING AND VALIDATION
+======================================================================
+
+Mandatory test layers:
+- unit tests
+- integration tests
+- API contract tests
+- property-based risk tests
+- adapter sandbox tests
+- simulated exchange/broker tests
+- blockchain transaction simulation tests
+- RLS/security tests
+- auth tests
+- end-to-end tests
+- chart/UI tests
+- Telegram tests
+- mobile tests
+- load tests
+- chaos tests
+- failover tests
+- replay/backtest regression tests
+- deterministic risk replay tests
+
+Create a fake broker/exchange simulator for CI that supports fills, rejects, partial fills, disconnections, latency, slippage, gaps, rate limits, and stale data.
+
+Critical invariant examples:
+- AI cannot bypass risk engine.
+- withdrawal permission never needed.
+- user cannot access another user's credentials/data.
+- no live order if automation policy is Copilot/Blocked.
+- no new order after kill switch.
+- allocation cap cannot be exceeded.
+- every order maps to an approved execution request.
+- retries do not duplicate orders.
+
+======================================================================
+49. UX REQUIREMENTS
+======================================================================
+
+- Modern, professional trading UI, not a generic AI template.
+- Dark and light themes.
+- Clear status colors but never rely on color alone.
+- Mobile-first responsiveness plus desktop multi-panel terminal.
+- Skeleton/loading/error/offline/stale-data states.
+- Accessibility: keyboard navigation, labels, contrast, scalable text.
+- Every risky action shows exact account, instrument, size, leverage, max expected risk, and mode.
+- Confirm destructive actions.
+- Emergency controls remain easily accessible.
+
+======================================================================
+50. LEGAL / PLATFORM POLICY BOUNDARIES
+======================================================================
+
+- Use only official/permitted automation methods.
+- Do not reverse engineer private trading APIs.
+- Do not bypass anti-bot controls.
+- Do not automate platforms whose current terms prohibit it; use Copilot.
+- Record last-reviewed automation policy per platform.
+- Regional availability and product eligibility can change; surface them rather than assuming universal access.
+- The system must not advertise guaranteed returns.
+- Include risk disclosures appropriate to the deployed jurisdictions and obtain legal/compliance review before public live-money launch.
+
+======================================================================
+51. MVP IMPLEMENTATION ORDER - WITHOUT DROPPING FUTURE FEATURES
+======================================================================
+
+Design the full architecture now, but implement and validate execution in this initial order:
+
+MVP Execution Environments:
+1. MetaTrader 5 -> Forex/CFD broker integration where permitted.
+2. Binance OR Bybit -> major crypto spot/perpetual/futures according to user/platform permissions.
+3. Solana -> DEX/memecoin integration through supported routers/RPC/indexers.
+
+At the same time implement the universal Platform Registry and adapter interfaces so cTrader, other CEXs, EVM DEXs, TON, FIX brokers, Interactive Brokers, Deriv, and future platforms can be added without changing the AI core.
+
+Restricted platforms appear in the Platform Registry as Copilot/Blocked according to current official policy.
+
+======================================================================
+52. DELIVERY PHASES
+======================================================================
+
+Phase 0 - Foundation
+- Monorepo, CI/CD, environment management, Supabase schema/RLS, shared contracts, feature registry, logging/telemetry, security baseline.
+
+Phase 1 - Market data + paper brain
+- Real data ingestion, chart terminal, technical/quant analysis, regime engine, strategy ensemble, TradeIntent, deterministic risk engine, paper execution, journal.
+
+Phase 2 - News/macro + portfolio + replay
+- News intelligence, economic events, portfolio correlation, backtest/replay, confidence calibration, NO TRADE, beginner guardian.
+
+Phase 3 - MT5 + CEX live bounded execution
+- Adapters, account connection, approval mode, bounded auto mode, execution intelligence, profit protection, emergency controls.
+
+Phase 4 - Solana/on-chain/memecoin intelligence
+- pools, token security, wallet graph, creator authenticity, rug history, sniper/bundle, transaction simulation, DEX execution.
+
+Phase 5 - Telegram + mobile completion
+- full Telegram bot/Mini App, mobile parity, push notifications, deep links.
+
+Phase 6 - Scale platform coverage
+- cTrader, additional CEXs, EVM, TON, FIX/other broker integrations, dynamic capability policies.
+
+Phase 7 - Advanced model governance and optimization
+- canary models, performance brain, calibrated confidence, automated disable/review, scale infrastructure.
+
+No phase is allowed to weaken the core safety invariants.
+
+======================================================================
+53. REQUIRED DOCUMENTATION
+======================================================================
+
+Generate and maintain:
+- README.md
+- ARCHITECTURE.md
+- SECURITY.md
+- THREAT_MODEL.md
+- RISK_ENGINE.md
+- PLATFORM_ADAPTERS.md
+- PLATFORM_CAPABILITY_REGISTRY.md
+- AI_BRAIN.md
+- DATA_PROVENANCE.md
+- NEWS_INTELLIGENCE.md
+- ONCHAIN_INTELLIGENCE.md
+- TOKEN_SECURITY.md
+- CREATOR_AUTHENTICITY.md
+- EXECUTION_ENGINE.md
+- PROFIT_PROTECTION.md
+- MARKET_TERMINAL.md
+- TELEGRAM.md
+- MOBILE.md
+- ADMIN.md
+- SUPABASE_SCHEMA.md
+- BACKTESTING.md
+- MODEL_GOVERNANCE.md
+- INCIDENT_RESPONSE.md
+- DEPLOYMENT.md
+- LOCAL_DEVELOPMENT.md
+- TESTING.md
+- API documentation/OpenAPI
+- ADR directory
+
+Documentation must reflect implemented behavior, not aspirational features.
+
+======================================================================
+54. ACCEPTANCE CRITERIA FOR "COMPLETE"
+======================================================================
+
+The platform is not complete until:
+- every blueprint feature in this prompt exists in FEATURE_REGISTRY
+- all user/admin/mobile/Telegram surfaces are wired to real backend state
+- Supabase migrations and RLS pass tests
+- at least the MVP platform adapters work in demo/sandbox/paper or bounded live mode as permitted
+- the AI emits structured TradeIntents with evidence
+- deterministic risk can approve/modify/reject and cannot be bypassed
+- portfolio exposure is aggregated across positions/accounts
+- profit target triggers protection and can let winners run
+- platform capability registry enforces Full/Limited/Copilot/Blocked
+- native market terminal and position preview work
+- scenario projection is labeled probabilistic
+- memecoin security + creator history/reputation are integrated into decisions
+- creator/rug evidence has confidence and does not equate failure with fraud
+- beginner guardian and claim verification work
+- Telegram bot + Mini App work
+- mobile apps work for the core feature set
+- admin app is a separate secure surface/link
+- audit logs reconstruct critical actions
+- market replay/backtesting/paper modes are functional
+- kill switches and failure tests pass
+- no production screen uses fabricated market data without an explicit demo label
+- security and dependency scans pass
+- documentation is complete
+
+======================================================================
+55. FINAL BUILD INSTRUCTION
+======================================================================
+
+Start implementation from the foundation rather than generating thousands of disconnected files at once.
+
+First:
+1. Create the GitHub monorepo and exact directory structure.
+2. Create architecture contracts and event schemas.
+3. Create Supabase schema, RLS, migrations, roles, and audit framework.
+4. Create Platform Capability Registry and universal adapter interfaces.
+5. Create market-data/event bus infrastructure.
+6. Create TradeIntent, Portfolio, Risk, Execution, and Trade Journal contracts.
+7. Build paper trading before live execution.
+8. Build the native AI chart/Trade Preview terminal.
+9. Add specialist AI brains and model governance.
+10. Add MT5, one CEX, then Solana adapters.
+11. Add news/on-chain/authenticity intelligence.
+12. Add Telegram, Mini App, mobile, and separate Admin UI.
+13. Expand platforms only after tests pass.
+
+For each milestone:
+- implement real code
+- run tests
+- record FEATURE_REGISTRY status
+- provide setup instructions
+- document environment variables
+- never expose secrets
+- include migrations
+- include rollback
+- include observability
+
+Do not remove, downgrade, postpone indefinitely, or silently replace any requirement in this master prompt. If a particular external platform/provider cannot legally or technically support a requested automation capability, implement the correct capability classification and Copilot fallback rather than bypassing the limitation.
+
+The finished product must behave as one coordinated universal trading operating system: one intelligence layer, one evidence/truth layer, one portfolio/risk authority, many legitimate execution adapters, multiple client interfaces, and complete auditability.
+
+END OF MASTER CREATION PROMPT
