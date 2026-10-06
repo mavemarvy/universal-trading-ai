@@ -1,0 +1,17 @@
+{
+  "name": "universal-trading-ai",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.9.1",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "build": "pnpm --filter @utai/web build && pnpm --filter @utai/admin build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "python3 -m pytest -q tests/unit tests/integration",
+    "test:python": "python3 -m pytest -q tests/unit tests/integration",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}
