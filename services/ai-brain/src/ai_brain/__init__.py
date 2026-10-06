@@ -1,0 +1,1 @@
+MODULES=['technical', 'quant', 'order_flow', 'news', 'macro', 'sentiment', 'market_regime', 'onchain', 'wallet_intelligence', 'creator_reputation', 'project_authenticity', 'token_security', 'liquidity', 'sniper_bot', 'manipulation_detection', 'correlation', 'strategy_ensemble', 'confidence', 'uncertainty', 'no_trade', 'portfolio']
