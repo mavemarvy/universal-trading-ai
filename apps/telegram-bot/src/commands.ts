@@ -1,0 +1,1 @@
+export const COMMANDS=["start","dashboard","markets","chart","analyze","news","signals","watchlist","positions","orders","pnl","portfolio","risk","history","scan","rugcheck","walletcheck","connect","ai","settings","help"] as const;
