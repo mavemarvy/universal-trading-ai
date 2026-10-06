@@ -1,0 +1,1 @@
+export default function Login(){return <main className="shell"><div className="card max-w-md mx-auto"><h1 className="text-2xl font-semibold">Admin sign-in</h1><p className="muted mt-2">Use the shared Supabase identity, then pass active admin membership and MFA policy checks. Admin bootstrap is operator-controlled; users cannot self-promote.</p></div></main>}

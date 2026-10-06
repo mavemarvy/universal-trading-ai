@@ -1,0 +1,1 @@
+export default function Unauthorized(){return <main className="shell"><div className="card"><h1 className="text-2xl font-semibold">Unauthorized</h1><p className="muted mt-2">This account does not have an active admin membership.</p></div></main>}
