@@ -64,19 +64,19 @@ type AuditRow = {
 };
 
 const nav = [
-  ["Overview", LayoutDashboard, "#overview"],
-  ["Users", Users, "#users"],
-  ["Platforms", Cable, "#platforms"],
-  ["Data & Providers", RadioTower, "#providers"],
-  ["AI & Models", BrainCircuit, "#intelligence"],
-  ["Strategies", Bot, "#intelligence"],
-  ["Risk Control", Gauge, "#risk"],
-  ["Incidents", ShieldAlert, "#risk"],
-  ["Execution", BarChart3, "#execution"],
-  ["Audit Trail", ScrollText, "#audit"],
-  ["Feature Registry", History, "#features"],
-  ["Secrets & Config", KeyRound, "#configuration"],
-  ["Settings", Settings2, "#configuration"],
+  ["Overview", LayoutDashboard, "/dashboard"],
+  ["Users", Users, "/users"],
+  ["Platforms", Cable, "/platforms"],
+  ["Data & Providers", RadioTower, "/providers"],
+  ["AI & Models", BrainCircuit, "/ai"],
+  ["Strategies", Bot, "/strategies"],
+  ["Risk Control", Gauge, "/risk"],
+  ["Incidents", ShieldAlert, "/incidents"],
+  ["Execution", BarChart3, "/execution"],
+  ["Audit Trail", ScrollText, "/audit"],
+  ["Feature Registry", History, "/features"],
+  ["Secrets & Config", KeyRound, "/configuration"],
+  ["Settings", Settings2, "/settings"],
 ] as const;
 
 function statusClass(status?: string | null) {
