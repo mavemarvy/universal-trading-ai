@@ -55,7 +55,7 @@ type ConnectionRow = {
   automation_mode: string;
   status: string;
   last_health_at: string | null;
-  trading_platforms: { name: string; family: string | null } | null;
+  trading_platforms: { name: string; family: string | null }[] | null;
 };
 
 const nav = [
@@ -420,11 +420,11 @@ export default async function Dashboard() {
               {connections.length ? connections.map((connection) => (
                 <div className="connection-row" key={connection.id}>
                   <div className="connection-glyph">
-                    {(connection.trading_platforms?.name || "?").slice(0, 1)}
+                    {(connection.trading_platforms?.[0]?.name || "?").slice(0, 1)}
                   </div>
                   <div>
-                    <strong>{connection.trading_platforms?.name || "Unknown platform"}</strong>
-                    <span>{connection.automation_mode} · {connection.trading_platforms?.family || "Venue"}</span>
+                    <strong>{connection.trading_platforms?.[0]?.name || "Unknown platform"}</strong>
+                    <span>{connection.automation_mode} · {connection.trading_platforms?.[0]?.family || "Venue"}</span>
                   </div>
                   <span className={statusClass(connection.status)}>{connection.status}</span>
                 </div>
