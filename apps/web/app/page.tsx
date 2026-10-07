@@ -251,7 +251,7 @@ export default async function Home() {
           <Zap size={21} /><span>{signedIn ? "Trade" : "Start"}</span>
         </Link>
         <a href="#risk"><Gauge size={20} /><span>Risk</span></a>
-        <Link href={signedIn ? "/dashboard#portfolio" : "/login"}><Wallet size={20} /><span>Assets</span></Link>
+        <Link href={signedIn ? "/portfolio" : "/login"}><Wallet size={20} /><span>Assets</span></Link>
       </nav>
     </main>
   );
