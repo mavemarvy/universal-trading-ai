@@ -59,21 +59,41 @@ export function TradingAppShell({
           <Link href="/profile" className="mobile-avatar" aria-label="Open profile">
             {displayName.slice(0,1).toUpperCase()}
           </Link>
-          <Link href="/markets" className="search-shell">
+
+          <Link href="/dashboard" className="mobile-route-brand" aria-label="Universal Trading AI home">
+            <span>UTAI</span>
+            <small>TRADING OS</small>
+          </Link>
+
+          <Link href="/markets" className="search-shell desktop-route-search">
             <Search size={17} /><span>Search markets, symbols, tokens…</span>
           </Link>
+
           <div className="route-title">
             <strong>{title}</strong>
             {subtitle ? <span>{subtitle}</span> : null}
           </div>
+
           <div className="topbar-tools">
             <Link href="/profile" className="desktop-user">{displayName}</Link>
+            <Link href="/markets" aria-label="Search markets" className="icon-button mobile-search-button">
+              <Search size={18} />
+            </Link>
             <Link href="/notifications" aria-label="Notifications" className="icon-button">
               <Bell size={18} />
               {notificationCount ? <b>{notificationCount}</b> : null}
             </Link>
           </div>
         </header>
+
+        <section className="mobile-route-heading">
+          <div>
+            <span>UNIVERSAL TRADING AI</span>
+            <h1>{title}</h1>
+            {subtitle ? <p>{subtitle}</p> : null}
+          </div>
+        </section>
+
         <div className="route-content">{children}</div>
       </section>
 
