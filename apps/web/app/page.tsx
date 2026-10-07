@@ -20,6 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { LiveMarketStream } from "@/components/live-market-stream";
 
 const markets = [
   ["Crypto", Bitcoin],
@@ -148,6 +149,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <LiveMarketStream compact />
 
       <section className="public-ticker" aria-label="Supported market categories">
         <div className="public-ticker-track">
