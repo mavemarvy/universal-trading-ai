@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { LiveActivity } from "@/components/live-activity";
+import { LiveMarketStream } from "@/components/live-market-stream";
 
 type PositionRow = {
   id: string;
@@ -233,6 +234,8 @@ export default async function Dashboard() {
             <a href="/risk"><span><Gauge size={19} /></span><b>Risk</b></a>
           </div>
         </section>
+
+        <LiveMarketStream />
 
         <section className="ai-strip" id="ai">
           <div className="ai-strip-icon"><BrainCircuit size={24} /></div>
