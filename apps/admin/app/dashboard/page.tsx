@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
+import { AdminLiveActivity } from "@/components/admin-live-activity";
 
 type HealthRow = {
   component: string;
@@ -485,6 +486,8 @@ export default async function AdminDashboard() {
             </div>
           </section>
         </div>
+
+        <AdminLiveActivity />
 
         <footer className="dashboard-footer">
           <span>Universal Trading AI · Production control plane</span>
