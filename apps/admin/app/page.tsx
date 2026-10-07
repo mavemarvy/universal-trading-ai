@@ -131,12 +131,12 @@ export default async function AdminHome() {
         </div>
 
         <div className="gateway-op-grid">
-          <article><Users size={20} /><div><strong>Users & access</strong><span>Memberships, roles, permissions and security state.</span></div><ArrowRight size={16} /></article>
-          <article><Cable size={20} /><div><strong>Platforms & capabilities</strong><span>Venue policy, automation class and connector readiness.</span></div><ArrowRight size={16} /></article>
-          <article><RadioTower size={20} /><div><strong>Providers & data</strong><span>Health, freshness, latency and source readiness.</span></div><ArrowRight size={16} /></article>
-          <article><BrainCircuit size={20} /><div><strong>AI & strategies</strong><span>Model registry, strategy versions and governance.</span></div><ArrowRight size={16} /></article>
-          <article><Gauge size={20} /><div><strong>Risk & emergency</strong><span>Hard limits, kill switches and deterministic authority.</span></div><ArrowRight size={16} /></article>
-          <article><ScrollText size={20} /><div><strong>Audit & incidents</strong><span>Privileged history, investigations and accountability.</span></div><ArrowRight size={16} /></article>
+          <Link href={adminState === "AUTHORIZED" ? "/users" : "/login"}><Users size={20} /><div><strong>Users & access</strong><span>Memberships, roles, permissions and security state.</span></div><ArrowRight size={16} /></Link>
+          <Link href={adminState === "AUTHORIZED" ? "/platforms" : "/login"}><Cable size={20} /><div><strong>Platforms & capabilities</strong><span>Venue policy, automation class and connector readiness.</span></div><ArrowRight size={16} /></Link>
+          <Link href={adminState === "AUTHORIZED" ? "/providers" : "/login"}><RadioTower size={20} /><div><strong>Providers & data</strong><span>Health, freshness, latency and source readiness.</span></div><ArrowRight size={16} /></Link>
+          <Link href={adminState === "AUTHORIZED" ? "/ai" : "/login"}><BrainCircuit size={20} /><div><strong>AI & strategies</strong><span>Model registry, strategy versions and governance.</span></div><ArrowRight size={16} /></Link>
+          <Link href={adminState === "AUTHORIZED" ? "/risk" : "/login"}><Gauge size={20} /><div><strong>Risk & emergency</strong><span>Hard limits, kill switches and deterministic authority.</span></div><ArrowRight size={16} /></Link>
+          <Link href={adminState === "AUTHORIZED" ? "/audit" : "/login"}><ScrollText size={20} /><div><strong>Audit & incidents</strong><span>Privileged history, investigations and accountability.</span></div><ArrowRight size={16} /></Link>
         </div>
       </section>
 
