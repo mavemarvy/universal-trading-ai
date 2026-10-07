@@ -15,12 +15,19 @@
   - `universal-trading-ai-web` with root `apps/web`.
   - `universal-trading-ai-admin` with root `apps/admin`.
 - Both Vercel projects are connected to `universal-trading-ai-prod` using the public Supabase project URL and modern publishable key.
-- The web Supabase health route has returned HTTP 200 against production.
-- Admin sign-in now uses the shared Supabase identity; authorization remains enforced by server-side active admin membership and MFA checks.
+- User and admin Supabase health routes return HTTP 200 against production.
+- Admin sign-in uses the shared Supabase identity.
+- Active admin membership is enforced server-side.
+- `SUPER_ADMIN` is mapped to all current admin permissions.
+- TOTP enrollment/challenge/verification is implemented for admin AAL2 step-up authentication.
+- The first requested administrator identity has an active `SUPER_ADMIN` membership. Its email confirmation is still pending.
+- The second requested administrator identity is not yet present in Supabase Auth and must complete the normal signup flow before it can be granted an admin membership.
 
 ## Security follow-up
 
 - Supabase Security Advisor currently reports that leaked-password protection is disabled. Enable leaked-password protection in Supabase Auth before declaring authentication production-hardened.
+- Do not place user passwords, service-role keys, or provider secrets in Git, frontend variables, or database plaintext.
+- Admin accounts should use MFA before privileged control-plane access.
 
 ## Deliberately not claimed as complete
 
