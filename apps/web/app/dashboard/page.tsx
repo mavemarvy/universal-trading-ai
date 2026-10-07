@@ -58,16 +58,16 @@ type ConnectionRow = {
 };
 
 const desktopNav = [
-  ["Overview", LayoutDashboard, "#home"],
-  ["Markets", CandlestickChart, "#markets"],
-  ["AI Trade", BrainCircuit, "#ai"],
-  ["Positions", TrendingUp, "#positions"],
-  ["Portfolio", Wallet, "#portfolio"],
-  ["Risk", Gauge, "#risk"],
-  ["Research", Radar, "#research"],
-  ["Connections", Cable, "#connections"],
-  ["Journal", History, "#journal"],
-  ["Learn", BookOpen, "#learning"],
+  ["Overview", LayoutDashboard, "/dashboard"],
+  ["Markets", CandlestickChart, "/markets"],
+  ["AI Trade", BrainCircuit, "/ai"],
+  ["Positions", TrendingUp, "/positions"],
+  ["Portfolio", Wallet, "/portfolio"],
+  ["Risk", Gauge, "/risk"],
+  ["Research", Radar, "/research"],
+  ["Connections", Cable, "/connections"],
+  ["Journal", History, "/journal"],
+  ["Learn", BookOpen, "/learning"],
 ] as const;
 
 const marketGroups = [
@@ -187,14 +187,14 @@ export default async function Dashboard() {
 
       <section className="exchange-main">
         <header className="exchange-topbar">
-          <div className="mobile-avatar">{displayName.slice(0, 1).toUpperCase()}</div>
+          <a href="/profile" className="mobile-avatar" aria-label="Open profile">{displayName.slice(0, 1).toUpperCase()}</a>
           <div className="search-shell">
             <Search size={17} />
             <span>Search markets, symbols, tokens…</span>
           </div>
           <div className="topbar-tools">
-            <span className="desktop-user">{displayName}</span>
-            <a href="#notifications" aria-label="Notifications" className="icon-button">
+            <a href="/profile" className="desktop-user">{displayName}</a>
+            <a href="/notifications" aria-label="Notifications" className="icon-button">
               <Bell size={18} />
               {notifications.length ? <b>{notifications.length}</b> : null}
             </a>
@@ -226,10 +226,10 @@ export default async function Dashboard() {
           </div>
 
           <div className="quick-actions">
-            <a href="#connections"><span><Cable size={19} /></span><b>Connect</b></a>
-            <a href="#ai"><span><BrainCircuit size={19} /></span><b>AI Scan</b></a>
-            <a href="#paper"><span><CircleDollarSign size={19} /></span><b>Paper</b></a>
-            <a href="#risk"><span><Gauge size={19} /></span><b>Risk</b></a>
+            <a href="/connections"><span><Cable size={19} /></span><b>Connect</b></a>
+            <a href="/ai"><span><BrainCircuit size={19} /></span><b>AI Scan</b></a>
+            <a href="/paper"><span><CircleDollarSign size={19} /></span><b>Paper</b></a>
+            <a href="/risk"><span><Gauge size={19} /></span><b>Risk</b></a>
           </div>
         </section>
 
@@ -244,7 +244,7 @@ export default async function Dashboard() {
                 : "Connect an approved market-data source to unlock live analysis. UTAI will not invent prices or signals."}
             </p>
           </div>
-          <a href="#opportunities" className="ai-strip-arrow" aria-label="Open AI opportunities"><ChevronRight size={22} /></a>
+          <a href="/ai" className="ai-strip-arrow" aria-label="Open AI opportunities"><ChevronRight size={22} /></a>
         </section>
 
         <section className="market-section" id="markets">
@@ -472,11 +472,11 @@ export default async function Dashboard() {
       </section>
 
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">
-        <a href="#home" className="active"><Home size={21} /><span>Home</span></a>
-        <a href="#markets"><CandlestickChart size={21} /><span>Markets</span></a>
-        <a href="#opportunities" className="trade-center"><BrainCircuit size={22} /><span>AI Trade</span></a>
-        <a href="#risk"><Gauge size={21} /><span>Risk</span></a>
-        <a href="#portfolio"><Wallet size={21} /><span>Assets</span></a>
+        <a href="/dashboard" className="active"><Home size={21} /><span>Home</span></a>
+        <a href="/markets"><CandlestickChart size={21} /><span>Markets</span></a>
+        <a href="/ai" className="trade-center"><BrainCircuit size={22} /><span>AI Trade</span></a>
+        <a href="/risk"><Gauge size={21} /><span>Risk</span></a>
+        <a href="/portfolio"><Wallet size={21} /><span>Assets</span></a>
       </nav>
     </main>
   );
