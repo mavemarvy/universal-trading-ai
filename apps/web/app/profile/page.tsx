@@ -13,7 +13,7 @@ export default async function ProfilePage({searchParams}:{searchParams:Promise<{
     supabase.auth.getUser()
   ]);
   return <TradingAppShell active="profile" title="Profile" subtitle="Identity, preferences and account controls" displayName={displayName} notificationCount={notificationCount}>
-    <section className="profile-route-head"><div className="profile-avatar-large">{displayName.slice(0,1).toUpperCase()}</div><div><span>TRADING PROFILE</span><h2>{displayName}</h2><p>{userData.data.user?.email||"Authenticated account"} · Onboarding {onboardingComplete?"complete":"incomplete"}</p></div></section>
+    <section className="profile-route-head"><div className="profile-avatar-large">{displayName.slice(0,1).toUpperCase()}</div><div><span>TRADING PROFILE</span><h2>{displayName}</h2><p>{userData.user?.email||"Authenticated account"} · Onboarding {onboardingComplete?"complete":"incomplete"}</p></div></section>
     {query.updated?<div className="route-success"><ShieldCheck size={16}/> Profile saved.</div>:null}
     <section className="route-split">
       <form className="route-panel profile-form">
