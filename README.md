@@ -4,13 +4,13 @@ Production-oriented monorepo for a multi-market AI-assisted trading operating sy
 
 ## Monorepo
 
-- `apps/web` — user web application (future Vercel project `universal-trading-ai-web`).
-- `apps/admin` — separate admin application (future Vercel project `universal-trading-ai-admin`).
+- `apps/web` — user web application deployed as Vercel project `universal-trading-ai-web`.
+- `apps/admin` — separate admin application deployed as Vercel project `universal-trading-ai-admin`.
 - `apps/telegram-mini-app`, `apps/telegram-bot`, `apps/mobile` — shared-backend client surfaces.
 - `services/*` — persistent AI, market-data, intelligence, risk, portfolio, execution, and profit-protection services.
 - `packages/*` — versioned TypeScript contracts, platform registry, validation, UI, API and trading-core packages.
 - `supabase/*` — reproducible migrations, seeds, function/config documentation.
-- `infrastructure/*` — persistent-compute deployment placeholders; never put always-on execution loops in Vercel/Supabase Edge Functions.
+- `infrastructure/*` — persistent-compute deployment placeholders; always-on execution loops do not belong in Vercel or Supabase Edge Functions.
 
 ## Safety invariants
 
@@ -24,7 +24,7 @@ Production-oriented monorepo for a multi-market AI-assisted trading operating sy
 
 ## Local development
 
-1. Copy `.env.example` to `.env.local` in `apps/web` and `apps/admin` and supply the project URL + publishable key.
+1. Copy `.env.example` to the relevant local environment file for `apps/web` and `apps/admin` and supply the project URL + publishable key.
 2. Keep server-only secrets outside the repository.
 3. Install Node 22+ and pnpm 12.9.1.
 4. `pnpm install`
@@ -38,11 +38,18 @@ Production project: `universal-trading-ai-prod`.
 
 Migrations use explicit Data API grants and RLS. The public API health RPC intentionally exposes only database time/schema readiness and no private data.
 
-## Vercel — intentionally not deployed yet
+## Vercel
 
 - `universal-trading-ai-web` -> root directory `apps/web`
 - `universal-trading-ai-admin` -> root directory `apps/admin`
 
-Both must use this same repository and the same Supabase production project.
+Both projects use this same GitHub repository and the same Supabase production project. Their production Supabase health routes are verified to return HTTP 200.
 
-See `FEATURE_REGISTRY.md`, `implementation-status.md`, and `docs/` for current scope and limitations.
+Current public entry points:
+
+- User app: `https://universal-trading-ai-web.vercel.app`
+- Admin app: `https://universal-trading-ai-admin.vercel.app`
+
+## Current limitations
+
+Live broker/exchange adapters, external intelligence providers, model training, unrestricted live automation, and other provider-backed capabilities remain disabled until their real integrations and tests are complete. See `FEATURE_REGISTRY.md`, `implementation-status.md`, and `docs/` for the authoritative implementation state.
