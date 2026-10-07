@@ -143,7 +143,7 @@ export default async function Login({
 
           <p className="auth-fineprint">
             Repeated confirmation attempts may be rate-limited by the email provider.
-            UTAI never asks for broker passwords, seed phrases or withdrawal permissions here.
+            UTAI never asks for broker passwords, wallet recovery credentials or withdrawal permissions here.
           </p>
         </div>
       </section>
