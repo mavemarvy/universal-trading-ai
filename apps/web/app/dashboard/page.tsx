@@ -26,6 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { LiveActivity } from "@/components/live-activity";
 
 type PositionRow = {
   id: string;
@@ -464,6 +465,8 @@ export default async function Dashboard() {
             <span className="safety-lock">LIVE EXECUTION LOCKED</span>
           </section>
         </div>
+
+        <LiveActivity userId={userId} />
 
         <footer className="exchange-footer">
           <span>Universal Trading AI</span>
