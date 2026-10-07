@@ -1028,3 +1028,142 @@ input { width:100%; border:1px solid #242930; border-radius:10px; background:#0a
   .route-metric-grid strong{font-size:15px!important}
   .limit-grid{grid-template-columns:1fr 1fr!important}
 }
+
+
+/* ---------- Routed functional surfaces ---------- */
+.route-error{
+  display:flex;align-items:center;gap:7px;
+  margin:8px 0;padding:9px 11px;
+  border:1px solid rgba(240,86,98,.15);
+  border-radius:9px;background:rgba(240,86,98,.04);
+  color:#ef9aa1;font-size:9px
+}
+.route-panel-title>div{min-width:0}
+.route-panel-title>div h3{margin:0}
+.route-panel-title>div small{display:block;margin-top:3px;color:#5e666f;font-size:7px;line-height:1.4}
+
+.risk-editor-panel{margin-bottom:8px}
+.risk-settings-form{display:block}
+.risk-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.risk-form-grid label{
+  display:block;color:#666f78;font-size:8px;font-weight:750
+}
+.risk-form-grid input,.risk-form-grid select{
+  width:100%;margin-top:5px;padding:10px;
+  border:1px solid #1d2329;border-radius:9px;
+  background:#0c0f12;color:#edf0f2;
+  outline:none
+}
+.risk-form-grid input:focus,.risk-form-grid select:focus{border-color:#6f5838}
+.risk-save-button{margin-top:10px!important}
+
+.portfolio-action-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0
+}
+.portfolio-action-grid>a{
+  min-width:0;display:grid;grid-template-columns:38px minmax(0,1fr) 20px;
+  align-items:center;gap:10px;padding:13px;
+  border:1px solid #181d22;border-radius:13px;background:#0a0d10
+}
+.portfolio-action-grid>a>span{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(243,170,67,.06);color:#b08a52
+}
+.portfolio-action-grid strong{display:block;font-size:10px}
+.portfolio-action-grid small{display:block;margin-top:3px;color:#5f6871;font-size:7px;line-height:1.4}
+.portfolio-action-grid>a>svg{color:#626b74}
+.portfolio-create-empty{display:grid;gap:8px}
+.portfolio-create-form{
+  display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:7px;align-items:end
+}
+.portfolio-create-form input,.portfolio-create-form select{
+  width:100%;padding:10px;border:1px solid #1d2329;border-radius:9px;
+  background:#0c0f12;color:#edf0f2
+}
+.portfolio-create-form .route-action{margin:0!important;min-height:40px}
+
+.market-source-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;margin:8px 0
+}
+.market-source-grid>article,.market-source-grid>a{
+  min-width:0;display:grid;grid-template-columns:36px minmax(0,1fr) auto;
+  align-items:center;gap:9px;padding:12px;
+  border:1px solid #181d22;border-radius:12px;background:#0a0d10
+}
+.market-source-icon{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:#15191e;color:#87919a
+}
+.market-source-icon.live{background:rgba(69,216,150,.06);color:#77dbaa}
+.market-source-grid strong{display:block;font-size:9px}
+.market-source-grid small{display:block;margin-top:3px;color:#5e6770;font-size:7px;line-height:1.35}
+.market-source-grid b{color:#78dbaa;font-size:7px}
+.market-source-grid>a>svg{color:#626b74}
+.compact-empty{min-height:120px!important}
+
+.ai-readiness-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;margin:8px 0
+}
+.ai-readiness-grid>article,.ai-readiness-grid>a{
+  min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);
+  gap:8px;align-items:center;padding:11px;
+  border:1px solid #181d22;border-radius:12px;background:#0a0d10
+}
+.ai-readiness-grid>article>span,.ai-readiness-grid>a>span{
+  width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#15191e
+}
+.ai-readiness-grid .ready>span{color:#78dbaa;background:rgba(69,216,150,.055)}
+.ai-readiness-grid .waiting>span{color:#c9a66a;background:rgba(243,170,67,.055)}
+.ai-readiness-grid strong{display:block;font-size:9px}
+.ai-readiness-grid small{display:block;margin-top:3px;color:#5f6871;font-size:7px;line-height:1.35}
+.ai-readiness-grid b{
+  grid-column:2;display:block;margin-top:2px;
+  color:#8b949c;font-size:7px
+}
+.ai-readiness-grid .ready b{color:#77dbaa}
+.ai-readiness-grid .waiting b{color:#c9a66a}
+.empty-cta{
+  display:inline-flex!important;align-items:center!important;gap:6px!important;
+  margin-top:7px!important;padding:7px 9px!important;
+  border:1px solid #20262d!important;border-radius:999px!important;
+  color:#c4c9ce!important;background:#0c0f12!important;
+  font-size:9px!important;font-weight:850!important
+}
+
+@media(max-width:900px){
+  .route-error,.route-success{font-size:11px!important;line-height:1.35!important}
+  .route-panel-title>div small{font-size:10px!important}
+  .risk-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .risk-form-grid label{font-size:10px!important}
+  .risk-form-grid input,.risk-form-grid select{min-height:42px!important;font-size:12px!important}
+  .portfolio-action-grid{grid-template-columns:1fr!important}
+  .portfolio-action-grid>a{
+    grid-template-columns:38px minmax(0,1fr) 18px!important;
+    min-height:70px!important;padding:12px!important
+  }
+  .portfolio-action-grid strong{font-size:13px!important}
+  .portfolio-action-grid small{font-size:10px!important}
+  .portfolio-create-form{grid-template-columns:1fr 92px!important}
+  .portfolio-create-form .route-action{grid-column:1/-1!important;justify-content:center!important}
+  .portfolio-create-form input,.portfolio-create-form select{min-height:42px!important;font-size:12px!important}
+  .market-source-grid{grid-template-columns:1fr!important}
+  .market-source-grid>article,.market-source-grid>a{
+    min-height:68px!important;padding:11px!important
+  }
+  .market-source-grid strong{font-size:12px!important}
+  .market-source-grid small{font-size:10px!important}
+  .market-source-grid b{font-size:9px!important}
+  .ai-readiness-grid{grid-template-columns:1fr 1fr!important}
+  .ai-readiness-grid>article,.ai-readiness-grid>a{min-height:88px!important}
+  .ai-readiness-grid strong{font-size:11px!important}
+  .ai-readiness-grid small{font-size:9px!important}
+  .ai-readiness-grid b{font-size:9px!important}
+  .empty-cta{font-size:10px!important}
+}
+
+@media(max-width:390px){
+  .risk-form-grid{grid-template-columns:1fr!important}
+  .ai-readiness-grid{grid-template-columns:1fr!important}
+}
