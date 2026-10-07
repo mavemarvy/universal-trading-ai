@@ -1,5 +1,6 @@
 import { CandlestickChart, Search, ShieldCheck } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
+import { LiveMarketStream } from "@/components/live-market-stream";
 import { requireUser } from "@/lib/auth";
 
 export default async function MarketsPage() {
@@ -11,6 +12,7 @@ export default async function MarketsPage() {
   return (
     <TradingAppShell active="markets" title="Markets" subtitle="Real instruments only" displayName={displayName} notificationCount={notificationCount}>
       <section className="route-hero compact"><div><span>MARKET DISCOVERY</span><h2>Find instruments across every supported market.</h2><p>Prices stay blank until an approved live feed is connected. Symbol registry data below comes from the production backend.</p></div><CandlestickChart size={34}/></section>
+      <LiveMarketStream />
       <div className="route-toolbar"><div><Search size={16}/><span>Search interface ready for provider-backed symbols</span></div><b>{instruments?.length ?? 0} instruments</b></div>
       <section className="route-panel">
         <div className="route-table-head"><span>Instrument</span><span>Market</span><span>Venue mappings</span><span>Live price</span></div>
