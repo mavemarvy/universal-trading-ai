@@ -12,7 +12,6 @@ import {
   Gauge,
   History,
   Home,
-  Landmark,
   LayoutDashboard,
   Newspaper,
   Radar,
@@ -72,13 +71,6 @@ const desktopNav = [
   ["Connections", Cable, "/connections"],
   ["Journal", History, "/journal"],
   ["Learn", BookOpen, "/learning"],
-] as const;
-
-const marketGroups = [
-  ["Crypto", Bitcoin, "Exchange market feed required"],
-  ["Forex", Landmark, "Broker / FX market feed required"],
-  ["Memecoins", Radar, "On-chain feed + token security required"],
-  ["Stocks & Indices", TrendingUp, "Licensed market feed required"],
 ] as const;
 
 function money(value?: string | number | null, currency = "USD") {
