@@ -9,10 +9,17 @@ import {
   Wifi,
 } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
+import { AIMarketWorkbench } from "@/components/ai-market-workbench";
 import { LiveMarketStream } from "@/components/live-market-stream";
 import { requireUser } from "@/lib/auth";
 
-export default async function AIPage() {
+export default async function AIPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ symbol?: string }>;
+}) {
+  const query = await searchParams;
+  const initialSymbol = String(query.symbol ?? "BTCUSDT").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 24) || "BTCUSDT";
   const { supabase, userId, displayName, notificationCount } = await requireUser();
 
   const [
@@ -69,6 +76,8 @@ export default async function AIPage() {
         </div>
         <BrainCircuit size={36} />
       </section>
+
+      <AIMarketWorkbench initialSymbol={initialSymbol} />
 
       <LiveMarketStream compact />
 
