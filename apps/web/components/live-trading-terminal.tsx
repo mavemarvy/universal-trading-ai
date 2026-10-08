@@ -88,15 +88,22 @@ function mergeLevels(
 }
 
 export function LiveTradingTerminal({
+  initialSymbol = "BTCUSDT",
   hasConnection,
   riskReady,
   paperReady,
 }: {
+  initialSymbol?: string;
   hasConnection: boolean;
   riskReady: boolean;
   paperReady: boolean;
 }) {
-  const [symbol, setSymbol] = useState<string>("BTCUSDT");
+  const normalizedInitial = initialSymbol.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 24) || "BTCUSDT";
+  const [symbol, setSymbol] = useState<string>(normalizedInitial);
+  const visibleSymbols = useMemo(
+    () => Array.from(new Set([normalizedInitial, ...SYMBOLS])),
+    [normalizedInitial],
+  );
   const [ticker, setTicker] = useState<Ticker>({});
   const [candles, setCandles] = useState<Candle[]>([]);
   const [book, setBook] = useState<Book>({ bids: [], asks: [] });
@@ -292,7 +299,7 @@ export function LiveTradingTerminal({
     <section className="terminal-shell">
       <header className="terminal-symbol-bar">
         <div className="terminal-symbol-tabs">
-          {SYMBOLS.map((item) => (
+          {visibleSymbols.map((item) => (
             <button
               type="button"
               className={symbol === item ? "active" : ""}
