@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, CircleDollarSign, Plus, ReceiptText, ShieldCheck } from "lucide-react";
+import { ArrowRight, CircleDollarSign, Plus, ReceiptText, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
 import { requireUser } from "@/lib/auth";
-import { createPaperAccount } from "./actions";
+import { closePaperPosition, createPaperAccount, refreshPaperPosition } from "./actions";
 
 function money(value: string | number | null | undefined, currency = "USD") {
   const n = Number(value);
@@ -17,12 +17,12 @@ function money(value: string | number | null | undefined, currency = "USD") {
 export default async function PaperPage({
   searchParams,
 }: {
-  searchParams: Promise<{ created?: string; error?: string }>;
+  searchParams: Promise<{ created?: string; refreshed?: string; closed?: string; error?: string }>;
 }) {
   const query = await searchParams;
   const { supabase, userId, displayName, notificationCount } = await requireUser();
 
-  const [{ data: accounts }, { data: orders }, { data: trades }] = await Promise.all([
+  const [{ data: accounts }, { data: orders }, { data: trades }, { data: positions }] = await Promise.all([
     supabase
       .from("paper_accounts")
       .select("id,name,base_currency,starting_equity,current_equity,created_at")
@@ -40,6 +40,12 @@ export default async function PaperPage({
       .eq("user_id", userId)
       .order("filled_at", { ascending: false })
       .limit(30),
+    supabase
+      .from("paper_positions")
+      .select("id,paper_account_id,trade_intent_id,paper_order_id,instrument_key,side,quantity,entry_price,current_price,unrealized_pnl,realized_pnl,status,opened_at,closed_at")
+      .eq("user_id", userId)
+      .order("opened_at", { ascending: false })
+      .limit(50),
   ]);
 
   const primary = accounts?.[0] ?? null;
@@ -69,9 +75,19 @@ export default async function PaperPage({
           <ShieldCheck size={16} /> Paper account created.
         </div>
       ) : null}
+      {query.refreshed ? (
+        <div className="route-success">
+          <RefreshCw size={16} /> Paper position refreshed from live market data.
+        </div>
+      ) : null}
+      {query.closed ? (
+        <div className="route-success">
+          <ShieldCheck size={16} /> Paper position closed and realized P&amp;L applied to paper equity.
+        </div>
+      ) : null}
       {query.error ? (
         <div className="route-error">
-          <CircleDollarSign size={16} /> Paper account could not be created.
+          <CircleDollarSign size={16} /> {decodeURIComponent(query.error)}
         </div>
       ) : null}
 
@@ -85,8 +101,8 @@ export default async function PaperPage({
           <strong>{primary ? money(primary.current_equity, primary.base_currency) : "—"}</strong>
         </article>
         <article>
-          <span>Paper fills</span>
-          <strong>{trades?.length ?? 0}</strong>
+          <span>Open positions</span>
+          <strong>{(positions ?? []).filter((position: any) => position.status === "OPEN").length}</strong>
         </article>
       </div>
 
@@ -138,6 +154,74 @@ export default async function PaperPage({
           ))}
         </section>
       )}
+
+      <section className="route-panel paper-positions-panel">
+        <div className="route-panel-title">
+          <TrendingUp size={18} />
+          <div>
+            <h3>Paper positions</h3>
+            <small>Refresh from the live market or close a simulated position. Real funds are never touched.</small>
+          </div>
+        </div>
+
+        <div className="paper-position-list">
+          {(positions ?? []).map((position: any) => {
+            const pnl = Number(position.status === "OPEN" ? position.unrealized_pnl : position.realized_pnl);
+            const pnlClass = Number.isFinite(pnl) && pnl >= 0 ? "paper-pnl up" : "paper-pnl down";
+
+            return (
+              <article key={position.id}>
+                <div className="paper-position-main">
+                  <span className={position.side === "LONG" ? "paper-side long" : "paper-side short"}>
+                    {position.side}
+                  </span>
+                  <div>
+                    <strong>{position.instrument_key}</strong>
+                    <small>Qty {position.quantity} · opened {new Date(position.opened_at).toLocaleString()}</small>
+                  </div>
+                </div>
+
+                <div className="paper-position-prices">
+                  <span><small>Entry</small><b>{position.entry_price}</b></span>
+                  <span><small>Current / exit</small><b>{position.current_price}</b></span>
+                  <span><small>{position.status === "OPEN" ? "Unrealized" : "Realized"} P&amp;L</small><b className={pnlClass}>{Number.isFinite(pnl) ? pnl.toFixed(4) : "—"}</b></span>
+                </div>
+
+                <div className="paper-position-actions">
+                  <b className={position.status === "OPEN" ? "open" : "closed"}>{position.status}</b>
+                  {position.status === "OPEN" ? (
+                    <>
+                      <form>
+                        <input type="hidden" name="position_id" value={position.id} />
+                        <button formAction={refreshPaperPosition} className="paper-refresh-button">
+                          <RefreshCw size={14} /> Refresh
+                        </button>
+                      </form>
+                      <form>
+                        <input type="hidden" name="position_id" value={position.id} />
+                        <button formAction={closePaperPosition} className="paper-close-button">
+                          <X size={14} /> Close
+                        </button>
+                      </form>
+                    </>
+                  ) : null}
+                </div>
+              </article>
+            );
+          })}
+
+          {!positions?.length ? (
+            <div className="route-empty">
+              <TrendingUp size={24} />
+              <strong>No simulated positions yet</strong>
+              <span>Run AI analysis, configure deterministic risk, and execute an approved TradeIntent in Paper mode.</span>
+              <Link href="/ai" className="empty-cta">
+                Open AI Trade <ArrowRight size={14} />
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      </section>
 
       <section className="route-panel">
         <div className="route-panel-title">
