@@ -394,6 +394,111 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+
+    if (action === "paper_refresh" || action === "paper_close") {
+      const positionId = String(body?.positionId ?? "");
+      if (!positionId) return response({ error: "position_id_required" }, 400);
+
+      const { data: position } = await admin
+        .from("paper_positions")
+        .select("*")
+        .eq("id", positionId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!position) return response({ error: "paper_position_not_found" }, 404);
+      if (String(position.status) !== "OPEN") return response({ error: "paper_position_not_open" }, 400);
+
+      const symbol = normalizeSymbol(position.instrument_key);
+      const quote = await fetchLastPrice(symbol);
+      const quantity = finite(position.quantity);
+      const entryPrice = finite(position.entry_price);
+      const isLong = String(position.side).toUpperCase() === "LONG";
+      const grossPnl = (isLong ? quote.price - entryPrice : entryPrice - quote.price) * quantity;
+
+      if (action === "paper_refresh") {
+        const { error: refreshError } = await admin
+          .from("paper_positions")
+          .update({ current_price: quote.price, unrealized_pnl: grossPnl })
+          .eq("id", position.id)
+          .eq("user_id", user.id);
+        if (refreshError) throw refreshError;
+        return response({ ok: true, action: "paper_refresh", positionId: position.id, currentPrice: quote.price, unrealizedPnl: grossPnl, source: "UNIFIED_MARKET_FEED" });
+      }
+
+      const { data: paperAccount } = await admin
+        .from("paper_accounts")
+        .select("*")
+        .eq("id", position.paper_account_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!paperAccount) return response({ error: "paper_account_not_found" }, 404);
+
+      const exitSide = isLong ? "SELL" : "BUY";
+      const exitFee = quote.price * quantity * 0.001;
+
+      const { data: closeOrder, error: closeOrderError } = await admin
+        .from("paper_orders")
+        .insert({
+          user_id: user.id,
+          paper_account_id: paperAccount.id,
+          trade_intent_id: position.trade_intent_id,
+          instrument_key: position.instrument_key,
+          side: exitSide,
+          order_type: "MARKET",
+          quantity,
+          requested_price: quote.price,
+          status: "FILLED",
+          simulated_latency_ms: quote.latencyMs,
+          simulated_slippage_bps: 0,
+        })
+        .select("id")
+        .single();
+      if (closeOrderError || !closeOrder) throw closeOrderError ?? new Error("paper_close_order_failed");
+
+      const { error: closeTradeError } = await admin.from("paper_trades").insert({
+        user_id: user.id,
+        paper_order_id: closeOrder.id,
+        quantity,
+        fill_price: quote.price,
+        fee: exitFee,
+      });
+      if (closeTradeError) throw closeTradeError;
+
+      const { error: positionCloseError } = await admin
+        .from("paper_positions")
+        .update({
+          current_price: quote.price,
+          unrealized_pnl: 0,
+          realized_pnl: grossPnl,
+          status: "CLOSED",
+          closed_at: new Date().toISOString(),
+        })
+        .eq("id", position.id)
+        .eq("user_id", user.id);
+      if (positionCloseError) throw positionCloseError;
+
+      const nextEquity = Math.max(0, finite(paperAccount.current_equity) + grossPnl - exitFee);
+      const { error: equityError } = await admin
+        .from("paper_accounts")
+        .update({ current_equity: nextEquity })
+        .eq("id", paperAccount.id)
+        .eq("user_id", user.id);
+      if (equityError) throw equityError;
+
+      return response({
+        ok: true,
+        action: "paper_close",
+        positionId: position.id,
+        paperOrderId: closeOrder.id,
+        exitPrice: quote.price,
+        grossPnl,
+        exitFee,
+        currentEquity: nextEquity,
+        source: "UNIFIED_MARKET_FEED",
+      });
+    }
+
     if (action !== "analyze") return response({ error: "unsupported_action" }, 400);
 
     const symbol = normalizeSymbol(body?.symbol);
