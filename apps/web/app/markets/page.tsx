@@ -32,7 +32,7 @@ export default async function MarketsPage() {
           <span>REAL MARKET DISCOVERY</span>
           <h2>Search exchanges, compare venues and discover active DEX tokens.</h2>
           <p>
-            Centralized market prices are aggregated from Bybit, Binance and OKX. DEX and meme-token
+            Centralized market prices are aggregated from Unified, Binance and OKX. DEX and meme-token
             discovery comes from live DEX Screener pair data. No placeholder prices are inserted.
           </p>
         </div>
@@ -47,7 +47,7 @@ export default async function MarketsPage() {
         </Link>
         <Link href="/connections">
           <span><Cable size={18} /></span>
-          <div><strong>Connect exchange</strong><small>Bybit, Binance or OKX</small></div>
+          <div><strong>Connect exchange</strong><small>Unified, Binance or OKX</small></div>
           <ArrowRight size={16} />
         </Link>
         <Link href="/ai">
