@@ -281,6 +281,21 @@ async function verifyOkx(
   };
 }
 
+
+async function verifyProvider(
+  platform: string,
+  apiKey: string,
+  apiSecret: string,
+  passphrase: string,
+  environment: string,
+  region: string,
+) {
+  if (platform === "BYBIT") return verifyBybit(apiKey, apiSecret, environment);
+  if (platform === "BINANCE") return verifyBinance(apiKey, apiSecret);
+  if (platform === "OKX") return verifyOkx(apiKey, apiSecret, passphrase, environment, region);
+  throw new Error("provider_not_supported_yet");
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return jsonResponse({ error: "method_not_allowed" }, 405);
@@ -308,6 +323,82 @@ Deno.serve(async (req: Request) => {
     const body = await req.json();
     const action = safeText(body?.action, 20).toLowerCase();
 
+    if (action === "refresh") {
+      const connectionId = safeText(body?.connectionId, 80);
+      if (!connectionId) return jsonResponse({ error: "connection_id_required" }, 400);
+
+      const { data: stored, error: storedError } = await adminClient.rpc(
+        "service_get_platform_connection_secret",
+        {
+          p_user_id: user.id,
+          p_connection_id: connectionId,
+        },
+      );
+      if (storedError || !stored) {
+        return jsonResponse({ error: storedError?.message || "connection_secret_unavailable" }, 400);
+      }
+
+      try {
+        const secretPayload =
+          typeof stored.secret_payload === "string"
+            ? JSON.parse(stored.secret_payload)
+            : stored.secret_payload ?? {};
+        const platform = safeText(stored.platform_key, 24).toUpperCase();
+        const environment = safeText(stored.environment || secretPayload.environment || "LIVE", 16).toUpperCase();
+        const region = safeText(stored.endpoint_region || secretPayload.region || "GLOBAL", 16).toUpperCase();
+        const verification = await verifyProvider(
+          platform,
+          safeText(secretPayload.api_key, 256),
+          safeText(secretPayload.api_secret, 512),
+          safeText(secretPayload.passphrase, 256),
+          environment,
+          region,
+        );
+
+        if (verification.permissions?.withdrawal === true) {
+          throw new Error("withdrawal_permission_forbidden");
+        }
+
+        const { error: updateError } = await adminClient
+          .from("platform_connections")
+          .update({
+            account_external_ref: verification.externalRef || null,
+            permissions: verification.permissions,
+            capability_snapshot: verification.capabilities,
+            status: "CONNECTED",
+            last_health_at: new Date().toISOString(),
+            verified_at: new Date().toISOString(),
+            last_error: null,
+          })
+          .eq("id", connectionId)
+          .eq("user_id", user.id);
+
+        if (updateError) throw updateError;
+
+        return jsonResponse({
+          ok: true,
+          action: "refresh",
+          connectionId,
+          platform,
+          status: "CONNECTED",
+          permissions: verification.permissions,
+          capabilities: verification.capabilities,
+        });
+      } catch (refreshError) {
+        const message = refreshError instanceof Error ? refreshError.message : "refresh_failed";
+        await adminClient
+          .from("platform_connections")
+          .update({
+            status: "ERROR",
+            last_error: message.slice(0, 300),
+            last_health_at: new Date().toISOString(),
+          })
+          .eq("id", connectionId)
+          .eq("user_id", user.id);
+        return jsonResponse({ error: message }, 400);
+      }
+    }
+
     if (action === "disconnect") {
       const connectionId = safeText(body?.connectionId, 80);
       if (!connectionId) return jsonResponse({ error: "connection_id_required" }, 400);
@@ -334,10 +425,14 @@ Deno.serve(async (req: Request) => {
     }
     if (!apiKey || !apiSecret) return jsonResponse({ error: "api_credentials_required" }, 400);
 
-    let verification: any;
-    if (platform === "BYBIT") verification = await verifyBybit(apiKey, apiSecret, environment);
-    else if (platform === "BINANCE") verification = await verifyBinance(apiKey, apiSecret);
-    else verification = await verifyOkx(apiKey, apiSecret, passphrase, environment, region);
+    const verification = await verifyProvider(
+      platform,
+      apiKey,
+      apiSecret,
+      passphrase,
+      environment,
+      region,
+    );
 
     if (verification.permissions?.withdrawal === true) {
       return jsonResponse({ error: "withdrawal_permission_forbidden" }, 400);
