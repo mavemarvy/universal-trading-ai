@@ -23,7 +23,15 @@ type Trade = {
 };
 
 const SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT"] as const;
-const WS_URL = "wss://stream.bybit.com/v5/public/spot";
+const WS_URL = "wss://ws.okx.com:8443/ws/v5/public";
+
+function instId(symbol: string) {
+  return symbol.endsWith("USDT") ? symbol.slice(0, -4) + "-USDT" : symbol;
+}
+
+function compact(id: string) {
+  return id.replaceAll("-", "");
+}
 
 function label(symbol: string) {
   return symbol.replace("USDT", "/USDT");
@@ -40,10 +48,10 @@ function price(value?: string) {
   if (!Number.isFinite(n)) return "—";
   if (n >= 1000) return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
   if (n >= 1) return n.toLocaleString(undefined, { maximumFractionDigits: 4 });
-  return n.toLocaleString(undefined, { maximumFractionDigits: 6 });
+  return n.toLocaleString(undefined, { maximumFractionDigits: 8 });
 }
 
-export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
+export function LiveMarketStream({ compact: compactMode = false }: { compact?: boolean }) {
   const [tickers, setTickers] = useState<Record<string, Ticker>>({});
   const [trades, setTrades] = useState<Trade[]>([]);
   const [status, setStatus] = useState<"connecting" | "live" | "reconnecting" | "offline">("connecting");
@@ -69,40 +77,54 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
         setStatus("live");
         ws?.send(JSON.stringify({
           op: "subscribe",
-          args: [
-            ...SYMBOLS.map((symbol) => `tickers.${symbol}`),
-            ...SYMBOLS.map((symbol) => `publicTrade.${symbol}`),
-          ],
+          args: SYMBOLS.flatMap((symbol) => [
+            { channel: "tickers", instId: instId(symbol) },
+            { channel: "trades", instId: instId(symbol) },
+          ]),
         }));
         heartbeat = window.setInterval(() => {
-          if (ws?.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ op: "ping" }));
-          }
+          if (ws?.readyState === WebSocket.OPEN) ws.send("ping");
         }, 20000);
       };
 
       ws.onmessage = (event) => {
+        if (event.data === "pong") return;
         try {
           const message = JSON.parse(String(event.data));
-          const topic = String(message.topic ?? "");
+          const channel = String(message?.arg?.channel ?? "");
+          const id = String(message?.arg?.instId ?? "");
+          if (!id || !Array.isArray(message?.data)) return;
+          const symbol = compact(id);
 
-          if (topic.startsWith("tickers.")) {
-            const raw = Array.isArray(message.data) ? message.data[0] : message.data;
-            if (!raw?.symbol) return;
+          if (channel === "tickers") {
+            const raw = message.data[0] ?? {};
+            const last = Number(raw.last);
+            const open = Number(raw.open24h);
+            const change = Number.isFinite(last) && Number.isFinite(open) && open !== 0
+              ? (last - open) / open
+              : 0;
             setTickers((current) => ({
               ...current,
-              [raw.symbol]: { ...(current[raw.symbol] ?? { symbol: raw.symbol }), ...raw },
+              [symbol]: {
+                symbol,
+                lastPrice: String(raw.last ?? ""),
+                price24hPcnt: String(change),
+                highPrice24h: String(raw.high24h ?? ""),
+                lowPrice24h: String(raw.low24h ?? ""),
+                volume24h: String(raw.vol24h ?? ""),
+                turnover24h: String(raw.volCcy24h ?? ""),
+              },
             }));
           }
 
-          if (topic.startsWith("publicTrade.") && Array.isArray(message.data)) {
-            const incoming: Trade[] = message.data.slice(-8).reverse().map((row: any) => ({
-              symbol: String(row.s ?? ""),
-              side: String(row.S ?? ""),
-              price: String(row.p ?? ""),
-              size: String(row.v ?? ""),
-              time: Number(row.T ?? Date.now()),
-              id: String(row.i ?? `${row.s}-${row.T}-${row.p}`),
+          if (channel === "trades") {
+            const incoming: Trade[] = message.data.slice(-10).reverse().map((row: any) => ({
+              symbol,
+              side: String(row.side ?? "").toLowerCase() === "buy" ? "Buy" : "Sell",
+              price: String(row.px ?? ""),
+              size: String(row.sz ?? ""),
+              time: Number(row.ts ?? Date.now()),
+              id: String(row.tradeId ?? `${symbol}-${row.ts}-${row.px}`),
             }));
             setTrades((current) => {
               const seen = new Set<string>();
@@ -112,14 +134,11 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
             });
           }
         } catch {
-          // Ignore malformed non-market messages; connection status remains authoritative.
+          // Ignore provider control frames.
         }
       };
 
-      ws.onerror = () => {
-        setStatus("offline");
-      };
-
+      ws.onerror = () => setStatus("offline");
       ws.onclose = () => {
         if (heartbeat) window.clearInterval(heartbeat);
         if (stoppedRef.current) return;
@@ -139,11 +158,11 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
   }, []);
 
   return (
-    <section className={compact ? "live-market-stream compact" : "live-market-stream"}>
+    <section className={compactMode ? "live-market-stream compact" : "live-market-stream"}>
       <div className="live-market-head">
         <div>
           <span className="eyebrow-label">LIVE MARKET</span>
-          <strong>Unified public spot feed</strong>
+          <strong>UTAI Unified Market Feed</strong>
         </div>
         <span className={status === "live" ? "market-connection live" : "market-connection"}>
           {status === "live" ? <Wifi size={13} /> : <WifiOff size={13} />}
@@ -166,7 +185,7 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
         })}
       </div>
 
-      {!compact ? (
+      {!compactMode ? (
         <div className="trade-tape">
           <div className="trade-tape-title"><Activity size={14} /><span>RECENT PUBLIC TRADES</span></div>
           <div className="trade-tape-track">
@@ -182,7 +201,7 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
         </div>
       ) : null}
 
-      <p className="live-source-note">Public market data only. No account credentials or trading permissions are used.</p>
+      <p className="live-source-note">Aggregated public market data. No private account credential is used for this feed.</p>
     </section>
   );
 }
