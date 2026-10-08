@@ -1,4 +1,5 @@
-import { Bot, Newspaper, Radar, ShieldCheck, Wallet } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Bot, Newspaper, Radar, ShieldCheck, Wallet } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
 import { requireUser } from "@/lib/auth";
 
@@ -20,6 +21,9 @@ export default async function ResearchPage(){
   ] as const;
   return <TradingAppShell active="research" title="Research" subtitle="Evidence and market intelligence" displayName={displayName} notificationCount={notificationCount}>
     <section className="route-hero compact purple-tone"><div><span>RESEARCH MATRIX</span><h2>Every AI claim should point back to evidence.</h2><p>This page exposes what is really present in the intelligence database; unavailable providers remain unavailable.</p></div><Radar size={34}/></section>
-    <section className="research-route-grid">{modules.map(([name,Icon,count,table])=><article key={name}><span><Icon size={20}/></span><strong>{name}</strong><b>{count} records</b><small>{table}</small></article>)}</section>
+    <section className="research-route-grid">
+      <Link href="/news" className="research-live-news"><span><Newspaper size={20}/></span><strong>Live News & Macro</strong><b>OPEN LIVE FEED</b><small>Current headlines + evidence boundary</small><ArrowRight size={15}/></Link>
+      {modules.map(([name,Icon,count,table])=><article key={name}><span><Icon size={20}/></span><strong>{name}</strong><b>{count} records</b><small>{table}</small></article>)}
+    </section>
   </TradingAppShell>;
 }
