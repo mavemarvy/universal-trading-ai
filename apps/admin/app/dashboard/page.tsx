@@ -122,6 +122,7 @@ export default async function AdminDashboard() {
     supabase
       .from("trading_platforms")
       .select("id,name,family,active,platform_capabilities(execution_class,policy_reviewed,automated_execution)")
+      .eq("active", true)
       .order("name"),
     supabase.from("provider_health").select("provider_key,status,latency_ms,checked_at").order("provider_key"),
     supabase.from("admin_memberships").select("id,status"),
