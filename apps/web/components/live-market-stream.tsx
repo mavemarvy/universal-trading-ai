@@ -143,7 +143,7 @@ export function LiveMarketStream({ compact = false }: { compact?: boolean }) {
       <div className="live-market-head">
         <div>
           <span className="eyebrow-label">LIVE MARKET</span>
-          <strong>Bybit public spot feed</strong>
+          <strong>Unified public spot feed</strong>
         </div>
         <span className={status === "live" ? "market-connection live" : "market-connection"}>
           {status === "live" ? <Wifi size={13} /> : <WifiOff size={13} />}
