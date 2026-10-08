@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   Activity, BarChart3, Bot, BrainCircuit, Cable, Gauge, History, KeyRound,
-  LayoutDashboard, Newspaper, RadioTower, ScrollText, Settings2, ShieldAlert, ShieldCheck,
+  LayoutDashboard, Newspaper, RadioTower, ScrollText, Settings2, ShieldAlert, ShieldCheck, CandlestickChart,
   SlidersHorizontal, Users, Zap
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -11,6 +11,7 @@ const nav = [
   ["Users", Users, "/users", "users"],
   ["Platforms", Cable, "/platforms", "platforms"],
   ["Connections", Cable, "/connections", "connections"],
+  ["Market Data", CandlestickChart, "/market-data", "market-data"],
   ["Data & Providers", RadioTower, "/providers", "providers"],
   ["News & Macro", Newspaper, "/news", "news"],
   ["AI & Models", BrainCircuit, "/ai", "ai"],
