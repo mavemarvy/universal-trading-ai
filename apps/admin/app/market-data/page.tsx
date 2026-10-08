@@ -26,13 +26,13 @@ export default async function MarketDataPage(){
         <div>
           <span>REAL MARKET OPERATIONS</span>
           <h2>Inspect what the user market terminal is actually receiving.</h2>
-          <p>Centralized prices are compared across Bybit, Binance and OKX. DEX activity comes from live DEX Screener pair data.</p>
+          <p>Centralized prices are compared across multiple public exchange feeds. DEX activity comes from live decentralized-market pair data.</p>
         </div>
         <CandlestickChart size={32}/>
       </section>
 
       <div className="metric-grid">
-        <article className="metric-card"><span>Live sources</span><strong>{online}/4</strong></article>
+        <article className="metric-card"><span>Live sources</span><strong>{online}/3</strong></article>
         <article className="metric-card"><span>CEX symbols sampled</span><strong>{market.cex.length}</strong></article>
         <article className="metric-card"><span>DEX hot tokens</span><strong>{market.dex.length}</strong></article>
         <article className="metric-card"><span>Aggregate latency</span><strong>{market.latencyMs} ms</strong></article>
