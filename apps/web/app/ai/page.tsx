@@ -72,11 +72,11 @@ export default async function AIPage({
     >
       <section className="route-hero ai-tone">
         <div>
-          <span>AI COPILOT</span>
-          <h2>AI proposes. Deterministic risk decides.</h2>
+          <span>AI / ML COPILOT</span>
+          <h2>Model proposes. Deterministic risk decides.</h2>
           <p>
-            Market context can be live without pretending the full AI evidence pipeline is ready.
-            Every real trade intent must still pass independent risk and platform-policy gates.
+            Run an on-demand statistical model on live market history, store the resulting TradeIntent,
+            then let the independent risk authority approve or reject it before paper execution.
           </p>
         </div>
         <BrainCircuit size={36} />
