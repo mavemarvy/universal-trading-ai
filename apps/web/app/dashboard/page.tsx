@@ -62,7 +62,9 @@ type ConnectionRow = {
 const desktopNav = [
   ["Overview", LayoutDashboard, "/dashboard"],
   ["Markets", CandlestickChart, "/markets"],
+  ["Trade", TrendingUp, "/trade"],
   ["AI Trade", BrainCircuit, "/ai"],
+  ["News & Macro", Newspaper, "/news"],
   ["Positions", TrendingUp, "/positions"],
   ["Portfolio", Wallet, "/portfolio"],
   ["Risk", Gauge, "/risk"],
@@ -421,7 +423,7 @@ export default async function Dashboard() {
               <Radar size={20} />
             </div>
             <div className="research-exchange-list">
-              <div><Newspaper size={17} /><span>News & Macro</span><b>Not configured</b></div>
+              <a href="/news"><Newspaper size={17} /><span>News & Macro</span><b>Live feed</b></a>
               <div><ShieldCheck size={17} /><span>Token Security</span><b>Not configured</b></div>
               <div><Wallet size={17} /><span>Wallet Network</span><b>Not configured</b></div>
               <div><Bot size={17} /><span>Sniper / Bot Activity</span><b>Not configured</b></div>
@@ -480,8 +482,8 @@ export default async function Dashboard() {
       <nav className="mobile-bottom-nav" aria-label="Primary mobile navigation">
         <a href="/dashboard" className="active"><Home size={21} /><span>Home</span></a>
         <a href="/markets"><CandlestickChart size={21} /><span>Markets</span></a>
-        <a href="/ai" className="trade-center"><BrainCircuit size={22} /><span>AI Trade</span></a>
-        <a href="/risk"><Gauge size={21} /><span>Risk</span></a>
+        <a href="/trade" className="trade-center"><TrendingUp size={22} /><span>Trade</span></a>
+        <a href="/ai"><BrainCircuit size={21} /><span>AI</span></a>
         <a href="/portfolio"><Wallet size={21} /><span>Assets</span></a>
       </nav>
     </main>
