@@ -100,6 +100,11 @@ export default async function ConnectionsPage({
           <Unplug size={16} /> Exchange disconnected and encrypted credentials removed.
         </div>
       ) : null}
+      {query.refreshed ? (
+        <div className="route-success">
+          <RefreshCw size={16} /> Account balances and permissions refreshed.
+        </div>
+      ) : null}
       {query.error ? (
         <div className="route-error">
           <ShieldCheck size={16} /> {decodeURIComponent(query.error)}
@@ -194,8 +199,11 @@ export default async function ConnectionsPage({
                   <span>Mode {connection.automation_mode}</span>
                 </div>
 
-                <form>
+                <form className="connection-card-actions">
                   <input type="hidden" name="connection_id" value={connection.id} />
+                  <button formAction={refreshExchange} className="refresh-connection-button">
+                    <RefreshCw size={15} /> Refresh account
+                  </button>
                   <button formAction={disconnectExchange} className="disconnect-button">
                     <Unplug size={15} /> Disconnect
                   </button>
