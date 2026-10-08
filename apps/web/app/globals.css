@@ -2429,3 +2429,109 @@ input { width:100%; border:1px solid #242930; border-radius:10px; background:#0a
   .ai-symbol-form{grid-template-columns:1fr!important}
   .ai-analysis-hero{grid-template-columns:1fr 1fr!important}
 }
+
+
+/* ---------- Dashboard core actions ---------- */
+.dashboard-action-callout{
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  margin:9px 0;
+  padding:14px;
+  border:1px solid rgba(243,170,67,.13);
+  border-radius:15px;
+  background:linear-gradient(120deg,rgba(243,170,67,.055),#090b0e 55%)
+}
+.dashboard-action-callout.connected{
+  border-color:rgba(69,216,150,.12);
+  background:linear-gradient(120deg,rgba(69,216,150,.045),#090b0e 55%)
+}
+.dashboard-action-icon{
+  width:42px;height:42px;border-radius:50%;
+  display:grid;place-items:center;
+  background:rgba(243,170,67,.08);
+  color:#e1b66e;font-size:20px;font-weight:900
+}
+.dashboard-action-callout.connected .dashboard-action-icon{
+  background:rgba(69,216,150,.07);color:#75dbaa
+}
+.dashboard-action-callout>div:nth-child(2)>strong{
+  display:block;margin-top:4px;font-size:12px
+}
+.dashboard-action-callout p{
+  margin:4px 0 0;
+  color:#65707a;font-size:8px;line-height:1.45
+}
+.dashboard-action-buttons{
+  display:flex;gap:6px;align-items:center
+}
+.dashboard-action-buttons a{
+  min-height:38px;display:inline-flex;align-items:center;gap:5px;
+  padding:0 11px;border-radius:9px;
+  background:#f3aa43;color:#160d02;font-size:8px;font-weight:900
+}
+.dashboard-action-callout.connected .dashboard-action-buttons a:first-child{
+  background:#45d896;color:#07130d
+}
+.dashboard-action-buttons a.secondary{
+  background:#11151a;color:#c5cbd0;border:1px solid #20262c
+}
+.dashboard-market-launch{
+  margin:9px 0;
+  padding:14px;
+  border:1px solid #181d22;
+  border-radius:15px;
+  background:#090b0e
+}
+.dashboard-market-launch-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:14px
+}
+.dashboard-market-launch-head h2{margin:4px 0 4px;font-size:16px}
+.dashboard-market-launch-head p{
+  max-width:700px;margin:0;color:#626c75;font-size:8px;line-height:1.5
+}
+.dashboard-market-launch-head>a{
+  flex:none;display:inline-flex;align-items:center;gap:5px;
+  min-height:34px;padding:0 9px;border:1px solid #20262c;border-radius:9px;
+  background:#0d1014;color:#c6ccd1;font-size:8px;font-weight:900
+}
+.dashboard-market-categories{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:11px
+}
+.dashboard-market-categories>a{
+  min-width:0;display:grid;grid-template-columns:30px minmax(0,1fr) auto;
+  gap:8px;align-items:center;padding:10px;
+  border:1px solid #151a1f;border-radius:10px;background:#0c0f12
+}
+.dashboard-market-categories>a>svg{color:#9c815c}
+.dashboard-market-categories strong{display:block;font-size:8px}
+.dashboard-market-categories span{display:block;margin-top:2px;color:#58616a;font-size:6px}
+.dashboard-market-categories b{color:#73d7a6;font-size:6px}
+
+@media(max-width:900px){
+  .dashboard-action-callout{
+    grid-template-columns:38px minmax(0,1fr)!important;
+    padding:12px!important
+  }
+  .dashboard-action-icon{width:36px!important;height:36px!important}
+  .dashboard-action-callout>div:nth-child(2)>strong{font-size:13px!important}
+  .dashboard-action-callout p{font-size:10px!important}
+  .dashboard-action-buttons{
+    grid-column:1/-1!important;
+    display:grid!important;grid-template-columns:1fr 1fr!important
+  }
+  .dashboard-action-buttons a{justify-content:center!important;font-size:10px!important}
+  .dashboard-market-launch-head{display:block!important}
+  .dashboard-market-launch-head h2{font-size:15px!important}
+  .dashboard-market-launch-head p{font-size:10px!important}
+  .dashboard-market-launch-head>a{margin-top:9px!important;font-size:10px!important}
+  .dashboard-market-categories{grid-template-columns:1fr 1fr!important}
+  .dashboard-market-categories>a{min-height:62px!important}
+  .dashboard-market-categories strong{font-size:11px!important}
+  .dashboard-market-categories span{font-size:9px!important}
+  .dashboard-market-categories b{font-size:8px!important}
+}
+@media(max-width:480px){
+  .dashboard-market-categories{grid-template-columns:1fr!important}
+}
