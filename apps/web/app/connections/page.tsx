@@ -15,14 +15,6 @@ import { connectExchange, disconnectExchange, refreshExchange } from "./actions"
 
 const connectors = [
   {
-    key: "BYBIT",
-    name: "Bybit",
-    note: "API key + secret. Withdrawal permission is rejected.",
-    passphrase: false,
-    region: false,
-    environments: ["LIVE", "TESTNET"],
-  },
-  {
     key: "BINANCE",
     name: "Binance",
     note: "API key permissions are checked before storage.",
