@@ -1743,3 +1743,206 @@ input { width:100%; border:1px solid #242930; border-radius:10px; background:#0a
   .connector-form{grid-template-columns:1fr!important}
   .connection-permission-grid{grid-template-columns:repeat(2,1fr)!important}
 }
+
+
+/* ---------- Live trading terminal ---------- */
+.terminal-shell{display:grid;gap:8px}
+.terminal-symbol-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 12px;border:1px solid #181d22;border-radius:13px;background:#090b0e
+}
+.terminal-symbol-tabs{display:flex;gap:5px;overflow:auto;scrollbar-width:none}
+.terminal-symbol-tabs::-webkit-scrollbar{display:none}
+.terminal-symbol-tabs button{
+  flex:none;display:flex;align-items:baseline;gap:2px;
+  padding:7px 9px;border:1px solid transparent;border-radius:9px;
+  background:transparent;color:#69717a;font-size:8px;font-weight:900
+}
+.terminal-symbol-tabs button small{font-size:6px;color:#4f575f}
+.terminal-symbol-tabs button.active{
+  color:#f4f5f6;background:#12161a;border-color:#20262c
+}
+.terminal-market-head{
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(380px,.7fr);
+  gap:16px;align-items:center;padding:14px;
+  border:1px solid #181d22;border-radius:14px;background:#090b0e
+}
+.terminal-pair{display:flex;align-items:center;gap:10px}
+.terminal-coin{
+  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(145deg,#f3aa43,#9a7cff);color:#130c07;font-weight:950
+}
+.terminal-pair strong{display:block;font-size:12px}
+.terminal-pair small{display:block;margin-top:2px;color:#5d666f;font-size:7px}
+.terminal-last{text-align:right}.terminal-last strong{display:block;font-size:22px}
+.terminal-last span{display:block;margin-top:3px;font-size:8px;font-weight:900}
+.terminal-last .up{color:#45d896}.terminal-last .down{color:#f05662}
+.terminal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.terminal-stats>span{padding:8px;border:1px solid #151a1f;border-radius:9px;background:#0c0f12}
+.terminal-stats small{display:block;color:#57616a;font-size:6px}
+.terminal-stats b{display:block;margin-top:4px;font-size:8px}
+
+.terminal-grid{
+  display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(230px,.7fr) minmax(230px,.7fr);
+  grid-template-areas:
+    "chart book ticket"
+    "chart trades ticket";
+  gap:8px
+}
+.terminal-chart-card,.terminal-orderbook,.terminal-trades,.terminal-ticket{
+  min-width:0;border:1px solid #181d22;border-radius:14px;background:#090b0e;overflow:hidden
+}
+.terminal-chart-card{grid-area:chart;padding:12px}
+.terminal-orderbook{grid-area:book;padding:12px}
+.terminal-trades{grid-area:trades;padding:12px}
+.terminal-ticket{grid-area:ticket;padding:12px}
+.terminal-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.terminal-card-head>div{display:flex;align-items:center;gap:7px}
+.terminal-card-head svg{color:#90775a}
+.terminal-card-head strong{font-size:9px}
+.terminal-card-head>span{color:#5c6570;font-size:6px;font-weight:900;letter-spacing:.08em}
+.terminal-chart-wrap{
+  min-height:390px;height:390px;border:1px solid #12171b;border-radius:10px;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 79px,rgba(95,104,114,.055) 80px),
+    repeating-linear-gradient(0deg,transparent 0 64px,rgba(95,104,114,.055) 65px),
+    #07090b;
+  overflow:hidden
+}
+.terminal-chart-wrap svg{display:block;width:100%;height:100%}
+.candle-up line,.candle-up rect{stroke:#45d896;fill:#45d896}
+.candle-down line,.candle-down rect{stroke:#f05662;fill:#f05662}
+.candle-up line,.candle-down line{stroke-width:1.3}
+.terminal-loading{height:100%;display:grid;place-items:center;color:#626b74;font-size:9px}
+.terminal-chart-foot{display:flex;gap:14px;padding-top:8px;color:#565f68;font-size:7px}
+
+.book-head,.book-side>div,.trade-list-head,.terminal-trade-list>div{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center
+}
+.book-head,.trade-list-head{min-height:24px;color:#4f5861;font-size:6px}
+.book-head span:last-child,.book-side b{text-align:right}
+.book-side>div{min-height:23px;font-size:7px}
+.book-side b{color:#7d858d}.book-side.asks span{color:#f1747e}.book-side.bids span{color:#61d49d}
+.book-mid{
+  margin:4px 0;padding:7px 0;border-top:1px solid #151a1f;border-bottom:1px solid #151a1f;
+  color:#e7eaed;font-size:11px;font-weight:900
+}
+.trade-list-head,.terminal-trade-list>div{grid-template-columns:1fr .7fr .8fr}
+.trade-list-head span:nth-child(n+2),.terminal-trade-list b,.terminal-trade-list time{text-align:right}
+.terminal-trade-list>div{min-height:25px;border-top:1px solid #101418;font-size:7px}
+.terminal-trade-list span{display:flex;align-items:center;gap:3px}
+.terminal-trade-list .buy{color:#54d399}.terminal-trade-list .sell{color:#ef707a}
+.terminal-trade-list b{color:#7d858d}.terminal-trade-list time{color:#525b64}
+
+.ticket-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.ticket-mode-tabs button{
+  min-height:34px;border:1px solid #191f24;border-radius:9px;background:#0c0f12;color:#69717a;font-size:8px;font-weight:900
+}
+.ticket-mode-tabs button.active{color:#f2f3f5;border-color:#6c5638;background:rgba(243,170,67,.05)}
+.ticket-pair{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid #151a1f;border-radius:10px;background:#0c0f12}
+.ticket-pair span{color:#606971;font-size:7px}.ticket-pair strong{font-size:10px}
+.ticket-gates{display:grid;gap:5px;margin-top:9px}
+.ticket-gates>span{
+  display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:6px;
+  padding:8px;border:1px solid #171c21;border-radius:9px;background:#0c0f12;
+  color:#777f87;font-size:7px
+}
+.ticket-gates>span svg{color:#76644d}
+.ticket-gates>span b{color:#a77e4b;font-size:6px}
+.ticket-gates>span.ready{color:#9ca4ab}.ticket-gates>span.ready svg,.ticket-gates>span.ready b{color:#65d59c}
+.ticket-notice{
+  margin-top:9px;padding:10px;border:1px solid rgba(154,124,255,.09);
+  border-radius:10px;background:rgba(154,124,255,.025)
+}
+.ticket-notice strong{font-size:8px}.ticket-notice p{margin:4px 0 0;color:#635f70;font-size:7px;line-height:1.45}
+.ticket-action{
+  min-height:40px;margin-top:9px;display:flex;align-items:center;justify-content:center;
+  padding:0 10px;border-radius:10px;background:#f3aa43;color:#160d02;
+  font-size:8px;font-weight:950;text-align:center
+}
+
+/* ---------- Live news ---------- */
+.live-news-shell{
+  padding:15px;border:1px solid #181d22;border-radius:15px;background:#090b0e;margin-top:8px
+}
+.live-news-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.live-news-head h2{margin:3px 0 0;font-size:15px}
+.news-live-tools{display:flex;align-items:center;gap:6px}
+.news-live-tools button{
+  width:31px;height:31px;padding:0;display:grid;place-items:center;border:1px solid #1d2329;border-radius:9px;background:#0d1014;color:#868f98
+}
+.spin-icon{animation:newsSpin .8s linear infinite}
+@keyframes newsSpin{to{transform:rotate(360deg)}}
+.news-topic-tabs{display:flex;gap:6px;margin:12px 0 8px;overflow:auto;scrollbar-width:none}
+.news-topic-tabs::-webkit-scrollbar{display:none}
+.news-topic-tabs button{
+  flex:none;min-height:30px;padding:0 11px;border:1px solid #181d22;border-radius:999px;background:#0c0f12;color:#666f78;font-size:8px;font-weight:900
+}
+.news-topic-tabs button.active{color:#f4f5f6;border-color:#6b5639;background:rgba(243,170,67,.045)}
+.news-provider-bar{
+  display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #12171b;border-bottom:1px solid #12171b;
+  color:#545e67;font-size:6px
+}
+.news-provider-bar span:first-child{display:flex;align-items:center;gap:5px}
+.live-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.live-news-card{
+  min-width:0;border:1px solid #171c21;border-radius:12px;background:#0c0f12;overflow:hidden;transition:.2s ease
+}
+.live-news-card:hover{transform:translateY(-2px);border-color:#272e35}
+.live-news-card.lead{grid-column:span 2;display:grid;grid-template-columns:.9fr 1.1fr}
+.news-image{min-height:135px;background-size:cover;background-position:center;background-color:#11161a}
+.live-news-card.lead .news-image{min-height:220px}
+.news-image.placeholder{display:grid;place-items:center;color:#56616b}
+.news-card-body{padding:11px}
+.news-source-line{display:flex;justify-content:space-between;gap:8px;color:#616a73;font-size:6px}
+.news-source-line span:last-child{display:flex;align-items:center;gap:3px}
+.news-card-body>strong{display:block;margin-top:8px;font-size:10px;line-height:1.4}
+.live-news-card.lead .news-card-body>strong{font-size:16px}
+.news-card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;color:#545d66;font-size:7px}
+.news-evidence-note{display:grid!important;grid-template-columns:25px 1fr!important;gap:9px!important;align-items:start!important}
+.news-evidence-note>svg{color:#9a7cff}.news-evidence-note strong{font-size:9px}.news-evidence-note p{margin:3px 0 0;color:#5f6871;font-size:7px;line-height:1.5}
+
+@media(max-width:1100px){
+  .terminal-grid{
+    grid-template-columns:minmax(0,1.6fr) minmax(220px,.8fr);
+    grid-template-areas:
+      "chart book"
+      "chart trades"
+      "ticket ticket"
+  }
+  .terminal-ticket{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .terminal-ticket .terminal-card-head,.terminal-ticket .ticket-notice,.terminal-ticket .ticket-action{grid-column:1/-1}
+}
+@media(max-width:900px){
+  .terminal-symbol-bar{padding:9px!important}
+  .terminal-symbol-tabs button{font-size:10px!important}.terminal-symbol-tabs button small{font-size:8px!important}
+  .terminal-market-head{grid-template-columns:1fr auto!important;padding:12px!important}
+  .terminal-stats{grid-column:1/-1!important;grid-template-columns:1fr 1fr!important}
+  .terminal-pair strong{font-size:14px!important}.terminal-pair small{font-size:9px!important}
+  .terminal-last strong{font-size:22px!important}.terminal-last span{font-size:10px!important}
+  .terminal-stats small{font-size:8px!important}.terminal-stats b{font-size:10px!important}
+  .terminal-grid{grid-template-columns:1fr!important;grid-template-areas:"chart" "book" "trades" "ticket"!important}
+  .terminal-chart-wrap{height:320px!important;min-height:320px!important}
+  .terminal-card-head strong{font-size:11px!important}.terminal-card-head>span{font-size:8px!important}
+  .book-head,.book-side>div,.trade-list-head,.terminal-trade-list>div{font-size:9px!important}
+  .terminal-ticket{display:block!important}
+  .ticket-mode-tabs button{font-size:10px!important}
+  .ticket-pair span{font-size:9px!important}.ticket-pair strong{font-size:12px!important}
+  .ticket-gates>span{font-size:9px!important}.ticket-gates>span b{font-size:8px!important}
+  .ticket-notice strong{font-size:10px!important}.ticket-notice p{font-size:9px!important}
+  .ticket-action{font-size:10px!important}
+  .live-news-grid{grid-template-columns:1fr 1fr!important}
+  .live-news-card.lead{grid-column:1/-1!important}
+  .news-source-line{font-size:8px!important}.news-card-body>strong{font-size:12px!important}
+  .live-news-card.lead .news-card-body>strong{font-size:15px!important}
+  .news-card-foot{font-size:9px!important}
+  .news-provider-bar{font-size:8px!important}
+  .news-evidence-note strong{font-size:11px!important}.news-evidence-note p{font-size:9px!important}
+}
+@media(max-width:600px){
+  .terminal-chart-wrap{height:260px!important;min-height:260px!important}
+  .live-news-grid{grid-template-columns:1fr!important}
+  .live-news-card.lead{display:block!important}
+  .live-news-card.lead .news-image{min-height:170px!important}
+}
