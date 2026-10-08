@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   Bot,
@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Gauge,
   LoaderCircle,
+  Play,
   ShieldCheck,
   Sparkles,
   TrendingDown,
@@ -17,14 +18,14 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
-type AnalysisResult = {
-  ok: true;
+type QuantResult = {
+  ok: boolean;
   action: "analyze";
   intentId: string;
   decisionId: string;
   symbol: string;
   tradeAction: "BUY" | "SELL" | "NO_TRADE";
-  decisionStatus: "APPROVE" | "REJECT";
+  decisionStatus: "APPROVE" | "MODIFY" | "REJECT";
   confidence: number;
   probabilityUp: number;
   validationAccuracy: number;
@@ -38,13 +39,25 @@ type AnalysisResult = {
   marketSource: string;
 };
 
+type PaperResult = {
+  ok: boolean;
+  action: "paper_execute";
+  paperOrderId: string;
+  fillPrice: number;
+  quantity: number;
+  fee: number;
+  source: string;
+};
+
 function fmt(value: number | null | undefined, digits = 6) {
   if (value == null || !Number.isFinite(value)) return "—";
-  if (Math.abs(value) >= 1000) return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  if (Math.abs(value) >= 1000) {
+    return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  }
   return value.toLocaleString(undefined, { maximumFractionDigits: digits });
 }
 
-function pct(value: number | null | undefined) {
+function percent(value: number | null | undefined) {
   if (value == null || !Number.isFinite(value)) return "—";
   return (value * 100).toFixed(1) + "%";
 }
@@ -58,20 +71,19 @@ export function AIMarketWorkbench({
 }) {
   const [symbol, setSymbol] = useState(initialSymbol);
   const [timeframe, setTimeframe] = useState("15m");
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<QuantResult | null>(null);
+  const [paper, setPaper] = useState<PaperResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [paperLoading, setPaperLoading] = useState(false);
-  const [paperFill, setPaperFill] = useState<{ fillPrice:number; quantity:number; fee:number } | null>(null);
   const [error, setError] = useState("");
 
-  async function analyze(event?: FormEvent) {
-    event?.preventDefault();
+  async function analyze() {
     const clean = symbol.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 24);
     if (!clean) return;
 
     setLoading(true);
     setError("");
-    setPaperFill(null);
+    setPaper(null);
 
     try {
       const supabase = createClient();
@@ -84,7 +96,7 @@ export function AIMarketWorkbench({
       }
 
       setSymbol(clean);
-      setResult(data as AnalysisResult);
+      setResult(data as QuantResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
     } finally {
@@ -107,11 +119,7 @@ export function AIMarketWorkbench({
         throw new Error(data?.error || invokeError?.message || "Paper execution failed");
       }
 
-      setPaperFill({
-        fillPrice: Number(data.fillPrice),
-        quantity: Number(data.quantity),
-        fee: Number(data.fee),
-      });
+      setPaper(data as PaperResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Paper execution failed");
     } finally {
@@ -119,30 +127,39 @@ export function AIMarketWorkbench({
     }
   }
 
-  const directionClass =
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    void analyze();
+  }
+
+  const actionClass =
     result?.tradeAction === "BUY" ? "buy" :
     result?.tradeAction === "SELL" ? "sell" : "wait";
+
+  const decisionClass =
+    result?.decisionStatus === "APPROVE" ? "approve" :
+    result?.decisionStatus === "MODIFY" ? "modify" : "reject";
 
   return (
     <section className="ai-workbench">
       <header className="ai-workbench-head">
         <div>
-          <span className="eyebrow-label">LOCAL ML + QUANT COPILOT</span>
-          <h2>Analyze a real market and create a risk-governed intent</h2>
+          <span className="eyebrow-label">AI / QUANT TRADE ENGINE</span>
+          <h2>Analyze a live market and route it through risk.</h2>
           <p>
-            Recent real candles train a small statistical classifier on demand. Its proposal is then
-            checked by your deterministic risk policy before paper execution is allowed.
+            A local market model is trained on recent candles for this request. The resulting
+            TradeIntent is then evaluated by deterministic risk before Paper execution is allowed.
           </p>
         </div>
-        <span className="ai-engine-pill"><BrainCircuit size={14}/> UTAI ML CORE</span>
+        <span className="ai-engine-pill"><BrainCircuit size={14} /> UTAI QUANT CORE</span>
       </header>
 
-      <form className="ai-symbol-form" onSubmit={analyze}>
+      <form className="ai-symbol-form ai-symbol-form-v2" onSubmit={submit}>
         <label>
-          <span>Market symbol</span>
+          <span>Market</span>
           <input
             value={symbol}
-            onChange={(event)=>setSymbol(event.target.value)}
+            onChange={(event) => setSymbol(event.target.value)}
             placeholder="BTCUSDT"
             autoCapitalize="characters"
           />
@@ -150,7 +167,7 @@ export function AIMarketWorkbench({
 
         <label>
           <span>Timeframe</span>
-          <select value={timeframe} onChange={(event)=>setTimeframe(event.target.value)}>
+          <select value={timeframe} onChange={(event) => setTimeframe(event.target.value)}>
             <option value="5m">5 minutes</option>
             <option value="15m">15 minutes</option>
             <option value="1h">1 hour</option>
@@ -159,144 +176,148 @@ export function AIMarketWorkbench({
         </label>
 
         <button type="submit" disabled={loading}>
-          {loading ? <LoaderCircle size={17} className="spin-icon"/> : <Sparkles size={17}/>}
-          {loading ? "Training + evaluating…" : "Analyze with ML"}
+          {loading ? <LoaderCircle size={17} className="spin-icon" /> : <Sparkles size={17} />}
+          {loading ? "Training + analyzing…" : "Run AI analysis"}
         </button>
       </form>
 
-      {error ? <div className="route-error"><Bot size={16}/>{error}</div> : null}
+      {error ? <div className="route-error"><Bot size={16} /> {error}</div> : null}
 
       {result ? (
         <>
           <section className="ai-analysis-hero">
-            <div className={"ai-direction " + directionClass}>
-              {result.tradeAction === "BUY" ? <TrendingUp size={25}/> :
-               result.tradeAction === "SELL" ? <TrendingDown size={25}/> :
-               <ShieldCheck size={25}/>}
+            <div className={"ai-direction " + actionClass}>
+              {result.tradeAction === "BUY" ? <TrendingUp size={25} /> :
+               result.tradeAction === "SELL" ? <TrendingDown size={25} /> :
+               <ShieldCheck size={25} />}
               <div>
-                <span>MODEL PROPOSAL</span>
-                <strong>{result.tradeAction}</strong>
+                <span>MODEL ACTION</span>
+                <strong>{result.tradeAction.replace("_", " ")}</strong>
               </div>
-            </div>
-
-            <div>
-              <span>Confidence</span>
-              <strong>{pct(result.confidence)}</strong>
             </div>
 
             <div>
               <span>Risk decision</span>
-              <strong className={result.decisionStatus === "APPROVE" ? "good-text" : "bad-text"}>
-                {result.decisionStatus}
-              </strong>
+              <strong className={"risk-decision-text " + decisionClass}>{result.decisionStatus}</strong>
+            </div>
+
+            <div>
+              <span>Confidence</span>
+              <strong>{percent(result.confidence)}</strong>
             </div>
 
             <div>
               <span>Regime</span>
-              <strong>{result.regime.replaceAll("_"," ")}</strong>
+              <strong>{result.regime.replaceAll("_", " ")}</strong>
             </div>
           </section>
 
-          <section className="ai-indicator-grid">
-            <article><span>P(up next bar)</span><strong>{pct(result.probabilityUp)}</strong></article>
-            <article><span>Validation accuracy</span><strong>{pct(result.validationAccuracy)}</strong></article>
-            <article><span>Expected-edge score</span><strong>{pct(result.expectedEdge)}</strong></article>
-            <article><span>Entry reference</span><strong>{fmt(result.entry)}</strong></article>
-            <article><span>Invalidation</span><strong>{fmt(result.stop)}</strong></article>
-            <article><span>Target</span><strong>{fmt(result.target)}</strong></article>
-            <article><span>Approved quantity</span><strong>{fmt(result.decisionStatus === "APPROVE" ? result.proposedSize : 0, 8)}</strong></article>
-            <article><span>Market source</span><strong>UNIFIED FEED</strong></article>
+          <section className="ai-indicator-grid ai-model-grid">
+            <article><span>P(up)</span><strong>{percent(result.probabilityUp)}</strong></article>
+            <article><span>Validation accuracy</span><strong>{percent(result.validationAccuracy)}</strong></article>
+            <article><span>Expected edge</span><strong>{percent(result.expectedEdge)}</strong></article>
+            <article><span>Entry reference</span><strong>{fmt(result.entry, 8)}</strong></article>
+            <article><span>Stop / invalidation</span><strong>{fmt(result.stop, 8)}</strong></article>
+            <article><span>Target</span><strong>{fmt(result.target, 8)}</strong></article>
+            <article><span>Risk-sized quantity</span><strong>{fmt(result.proposedSize, 8)}</strong></article>
+            <article><span>Market source</span><strong>{result.marketSource.replaceAll("_", " ")}</strong></article>
           </section>
 
           <section className="ai-analysis-grid">
             <article>
-              <div className="ai-analysis-card-head"><BrainCircuit size={17}/><strong>Model interpretation</strong></div>
+              <div className="ai-analysis-card-head"><BrainCircuit size={17} /><strong>Model output</strong></div>
               <p>
-                The classifier estimates next-bar direction from returns, moving-average spread,
-                volatility, range expansion and volume behavior. Validation accuracy is calculated
-                on held-out recent candles rather than the training rows.
+                The engine trained on recent {timeframe} candles and created TradeIntent{" "}
+                <b>{result.intentId.slice(0, 8)}…</b>. Validation accuracy and probability are shown
+                above instead of being hidden behind a generic “AI” label.
               </p>
-              <div className="ai-probability-track">
-                <span style={{width: Math.max(2, Math.min(98, result.probabilityUp * 100)) + "%"}}/>
+              <div className="ai-model-disclosure">
+                <span>Model</span><b>Local logistic market classifier</b>
+                <span>Execution</span><b>Deterministic risk authority</b>
+                <span>Live order bypass</span><b>Disabled</b>
               </div>
-              <div className="ai-probability-labels"><span>DOWN</span><b>{pct(result.probabilityUp)} UP</b></div>
             </article>
 
             <article>
-              <div className="ai-analysis-card-head"><Gauge size={17}/><strong>Deterministic risk verdict</strong></div>
+              <div className="ai-analysis-card-head"><Gauge size={17} /><strong>Risk result</strong></div>
               {result.reasons.length ? (
-                <ul className="ai-reason-list">
-                  {result.reasons.map((reason)=><li key={reason}>{reason.replaceAll("_"," ")}</li>)}
+                <ul>
+                  {result.reasons.map((reason) => (
+                    <li key={reason}>{reason.replaceAll("_", " ")}</li>
+                  ))}
                 </ul>
               ) : (
-                <div className="ai-risk-approved"><CheckCircle2 size={18}/><span>Current proposal passed the configured risk checks.</span></div>
+                <div className="ai-risk-approved">
+                  <CheckCircle2 size={18} />
+                  <div>
+                    <strong>Deterministic checks approved this intent.</strong>
+                    <span>The approved quantity is {fmt(result.proposedSize, 8)}.</span>
+                  </div>
+                </div>
               )}
-              <small className="ai-sizing-note">Live execution remains a separate execution-policy gate even when risk approves.</small>
             </article>
           </section>
 
           <section className="ai-gate-grid">
             <Link href="/risk" className={result.decisionStatus === "APPROVE" ? "ready" : ""}>
-              <Gauge size={17}/>
+              <Gauge size={17} />
               <div><strong>Risk authority</strong><span>{result.decisionStatus}</span></div>
-              <ArrowRight size={14}/>
+              <ArrowRight size={14} />
             </Link>
-
             <Link href="/connections">
-              <Cable size={17}/>
-              <div><strong>Exchange accounts</strong><span>Manage connections</span></div>
-              <ArrowRight size={14}/>
+              <Cable size={17} />
+              <div><strong>Live account</strong><span>Manage exchange connection</span></div>
+              <ArrowRight size={14} />
             </Link>
-
             <Link href="/paper" className={paperReady ? "ready" : ""}>
-              <ShieldCheck size={17}/>
+              <ShieldCheck size={17} />
               <div><strong>Paper account</strong><span>{paperReady ? "Ready" : "Create first"}</span></div>
-              <ArrowRight size={14}/>
+              <ArrowRight size={14} />
             </Link>
           </section>
 
           <div className="ai-intent-actions">
-            {result.decisionStatus === "APPROVE" && ["BUY","SELL"].includes(result.tradeAction) ? (
-              paperReady ? (
-                <button type="button" onClick={executePaper} disabled={paperLoading || Boolean(paperFill)}>
-                  {paperLoading ? <LoaderCircle size={16} className="spin-icon"/> : <ShieldCheck size={16}/>}
-                  {paperFill ? "Paper trade filled" : paperLoading ? "Executing paper trade…" : "Execute in Paper Account"}
-                </button>
-              ) : (
-                <Link href="/paper">Create paper account <ArrowRight size={15}/></Link>
-              )
+            {result.decisionStatus === "APPROVE" && result.tradeAction !== "NO_TRADE" ? (
+              <button type="button" onClick={() => void executePaper()} disabled={paperLoading || !paperReady}>
+                {paperLoading ? <LoaderCircle size={16} className="spin-icon" /> : <Play size={16} />}
+                {paperLoading ? "Executing simulation…" : paperReady ? "Execute Paper Trade" : "Create Paper Account First"}
+              </button>
             ) : (
-              <Link href="/risk">Review risk settings <ArrowRight size={15}/></Link>
+              <span className="ai-no-execution">Execution unavailable: deterministic risk did not approve this intent.</span>
             )}
 
-            <Link href={"/trade?symbol="+encodeURIComponent(symbol)}>
-              Open live terminal <ArrowRight size={15}/>
+            <Link href={"/trade?symbol=" + encodeURIComponent(symbol)}>
+              Open live terminal <ArrowRight size={15} />
             </Link>
           </div>
 
-          {paperFill ? (
-            <div className="route-success">
-              <CheckCircle2 size={16}/>
-              Paper fill recorded at {fmt(paperFill.fillPrice,8)} · quantity {fmt(paperFill.quantity,8)} · fee {fmt(paperFill.fee,8)}
+          {paper ? (
+            <div className="route-success paper-execution-success">
+              <CheckCircle2 size={16} />
+              Paper order filled at {fmt(paper.fillPrice, 8)} · quantity {fmt(paper.quantity, 8)} · fee {fmt(paper.fee, 8)}.
             </div>
           ) : null}
 
           <div className="ai-engine-disclosure">
-            <Bot size={15}/>
+            <Bot size={15} />
             <div>
-              <strong>UTAI Local ML Core 1.0</strong>
+              <strong>What “AI” means on this screen</strong>
               <span>
-                This is a real on-demand statistical classifier plus deterministic risk checks—not
-                a guaranteed-profit predictor. News/on-chain specialist models remain separate evidence inputs.
+                The active path is a locally trained quantitative classifier plus deterministic risk.
+                It is real computation on current market history. The broader specialist-AI ensemble
+                from the master blueprint is still being built and is not mislabeled as complete.
               </span>
             </div>
           </div>
         </>
       ) : (
         <div className="ai-workbench-empty">
-          <BrainCircuit size={30}/>
-          <strong>Select a market and run the model</strong>
-          <span>Use a centralized-market symbol such as BTCUSDT, ETHUSDT, SOLUSDT or DOGEUSDT.</span>
+          <BrainCircuit size={30} />
+          <strong>Pick a market and run the model.</strong>
+          <span>
+            You can launch this screen directly from any centralized-market row. The analysis will
+            create a TradeIntent and a deterministic risk decision.
+          </span>
         </div>
       )}
     </section>
