@@ -1,14 +1,16 @@
 import Link from "next/link";
 import {
   Bell, BrainCircuit, Cable, CandlestickChart, Gauge, History, Home,
-  LayoutDashboard, Radar, Search, TrendingUp, UserCircle, Wallet, BookOpen, Zap
+  LayoutDashboard, Newspaper, Radar, Search, TrendingUp, UserCircle, Wallet, BookOpen, Zap
 } from "lucide-react";
 import type { ReactNode } from "react";
 
 const nav = [
   ["Overview", LayoutDashboard, "/dashboard", "overview"],
   ["Markets", CandlestickChart, "/markets", "markets"],
+  ["Trade", TrendingUp, "/trade", "trade"],
   ["AI Trade", BrainCircuit, "/ai", "ai"],
+  ["News & Macro", Newspaper, "/news", "news"],
   ["Positions", TrendingUp, "/positions", "positions"],
   ["Portfolio", Wallet, "/portfolio", "portfolio"],
   ["Risk", Gauge, "/risk", "risk"],
@@ -100,8 +102,8 @@ export function TradingAppShell({
       <nav className="mobile-bottom-nav">
         <Link href="/dashboard" className={active === "overview" ? "active" : ""}><Home size={21}/><span>Home</span></Link>
         <Link href="/markets" className={active === "markets" ? "active" : ""}><CandlestickChart size={21}/><span>Markets</span></Link>
-        <Link href="/ai" className={active === "ai" ? "active trade-center" : "trade-center"}><BrainCircuit size={22}/><span>AI Trade</span></Link>
-        <Link href="/risk" className={active === "risk" ? "active" : ""}><Gauge size={21}/><span>Risk</span></Link>
+        <Link href="/trade" className={active === "trade" ? "active trade-center" : "trade-center"}><TrendingUp size={22}/><span>Trade</span></Link>
+        <Link href="/ai" className={active === "ai" ? "active" : ""}><BrainCircuit size={21}/><span>AI</span></Link>
         <Link href="/portfolio" className={active === "portfolio" ? "active" : ""}><Wallet size={21}/><span>Assets</span></Link>
       </nav>
     </main>
