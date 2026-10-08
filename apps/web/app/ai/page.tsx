@@ -27,6 +27,7 @@ export default async function AIPage({
     { data: decisions },
     { data: riskProfile },
     { data: connections },
+    { count: paperAccounts },
   ] = await Promise.all([
     supabase
       .from("trade_intents")
@@ -48,6 +49,10 @@ export default async function AIPage({
     supabase
       .from("platform_connections")
       .select("id,status")
+      .eq("user_id", userId),
+    supabase
+      .from("paper_accounts")
+      .select("id", { count: "exact", head: true })
       .eq("user_id", userId),
   ]);
 
@@ -77,7 +82,7 @@ export default async function AIPage({
         <BrainCircuit size={36} />
       </section>
 
-      <AIMarketWorkbench initialSymbol={initialSymbol} />
+      <AIMarketWorkbench initialSymbol={initialSymbol} paperReady={(paperAccounts ?? 0) > 0} />
 
       <LiveMarketStream compact />
 
