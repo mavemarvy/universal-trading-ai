@@ -2652,3 +2652,77 @@ input { width:100%; border:1px solid #242930; border-radius:10px; background:#0a
   .market-live-list article>a,.dex-market-badge{grid-column:2!important;grid-row:3!important;justify-self:end!important}
   .market-favorite{left:-5px!important}
 }
+
+
+/* ---------- Quant AI execution workflow ---------- */
+.ai-symbol-form-v2{
+  grid-template-columns:minmax(0,1.1fr) minmax(150px,.45fr) auto!important;
+}
+.ai-symbol-form-v2 select{
+  width:100%;
+  min-height:44px;
+  padding:0 10px;
+  border:1px solid #20262c;
+  border-radius:10px;
+  background:#080a0d;
+  color:#f2f4f6;
+  font-size:11px;
+}
+.risk-decision-text.approve{color:#56d29a}
+.risk-decision-text.reject{color:#ef707a}
+.risk-decision-text.modify{color:#d3a85f}
+.ai-model-grid article:last-child strong{
+  font-size:9px;
+  overflow-wrap:anywhere;
+}
+.ai-model-disclosure{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:6px 9px;
+  margin-top:10px;
+  padding:9px;
+  border:1px solid #151a1f;
+  border-radius:9px;
+  background:#0c0f12;
+}
+.ai-model-disclosure span{color:#5f6871;font-size:7px}
+.ai-model-disclosure b{color:#bfc5ca;font-size:7px}
+.ai-risk-approved{
+  display:grid;
+  grid-template-columns:26px minmax(0,1fr);
+  gap:8px;
+  align-items:start;
+  margin-top:9px;
+  padding:10px;
+  border:1px solid rgba(69,216,150,.12);
+  border-radius:10px;
+  background:rgba(69,216,150,.03);
+}
+.ai-risk-approved svg{color:#62d29a}
+.ai-risk-approved strong{display:block;font-size:9px;color:#bde7d0}
+.ai-risk-approved span{display:block;margin-top:3px;color:#64756d;font-size:7px}
+.ai-no-execution{
+  display:inline-flex;
+  align-items:center;
+  min-height:42px;
+  padding:0 11px;
+  border:1px solid rgba(240,86,98,.1);
+  border-radius:10px;
+  background:rgba(240,86,98,.025);
+  color:#a56d73;
+  font-size:8px;
+}
+.paper-execution-success{margin-top:9px!important}
+
+@media(max-width:900px){
+  .ai-symbol-form-v2{grid-template-columns:1fr 150px!important}
+  .ai-symbol-form-v2 button{grid-column:1/-1!important}
+  .ai-symbol-form-v2 select{font-size:12px!important}
+  .ai-model-disclosure span,.ai-model-disclosure b{font-size:9px!important}
+  .ai-risk-approved strong{font-size:11px!important}
+  .ai-risk-approved span{font-size:9px!important}
+  .ai-no-execution{font-size:10px!important}
+}
+@media(max-width:560px){
+  .ai-symbol-form-v2{grid-template-columns:1fr!important}
+}
