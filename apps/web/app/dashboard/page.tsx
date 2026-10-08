@@ -231,9 +231,22 @@ export default async function Dashboard() {
 
           <div className="quick-actions">
             <a href="/connections"><span><Cable size={19} /></span><b>Connect</b></a>
-            <a href="/ai"><span><BrainCircuit size={19} /></span><b>AI Scan</b></a>
-            <a href="/paper"><span><CircleDollarSign size={19} /></span><b>Paper</b></a>
-            <a href="/risk"><span><Gauge size={19} /></span><b>Risk</b></a>
+            <a href="/markets"><span><CandlestickChart size={19} /></span><b>Explore</b></a>
+            <a href="/trade"><span><TrendingUp size={19} /></span><b>Trade</b></a>
+            <a href="/ai"><span><BrainCircuit size={19} /></span><b>AI Trade</b></a>
+          </div>
+        </section>
+
+        <section className={connected.length ? "dashboard-action-callout connected" : "dashboard-action-callout"}>
+          <div className="dashboard-action-icon">{connected.length ? "✓" : "+"}</div>
+          <div>
+            <span className="eyebrow-label">{connected.length ? "EXCHANGE CONNECTED" : "START HERE"}</span>
+            <strong>{connected.length ? `${connected.length} trading venue${connected.length === 1 ? "" : "s"} ready for account data` : "Connect your crypto exchange account"}</strong>
+            <p>{connected.length ? "Open the live terminal, run AI analysis, or manage the verified connection." : "Connect Bybit, Binance or OKX. UTAI verifies permissions and rejects withdrawal-enabled credentials before encrypted storage."}</p>
+          </div>
+          <div className="dashboard-action-buttons">
+            <a href={connected.length ? "/trade" : "/connections"}>{connected.length ? "Open Trade" : "Connect Exchange"}<ChevronRight size={15}/></a>
+            <a href="/markets" className="secondary">Explore Markets<ChevronRight size={15}/></a>
           </div>
         </section>
 
@@ -253,37 +266,20 @@ export default async function Dashboard() {
           <a href="/ai" className="ai-strip-arrow" aria-label="Open AI opportunities"><ChevronRight size={22} /></a>
         </section>
 
-        <section className="market-section" id="markets">
-          <div className="market-section-head">
-            <h2>Markets</h2>
-            <div className="market-tabs">
-              <span className="active">Overview</span>
-              <span>Watchlist</span>
-              <span>Crypto</span>
-              <span>Forex</span>
-              <span>Memecoins</span>
+        <section className="dashboard-market-launch" id="markets">
+          <div className="dashboard-market-launch-head">
+            <div>
+              <span className="eyebrow-label">MARKET DISCOVERY</span>
+              <h2>Real markets, not placeholder rows.</h2>
+              <p>Search centralized-exchange markets, compare venue availability, discover active DEX/meme tokens, and jump straight into AI analysis or the live terminal.</p>
             </div>
+            <a href="/markets">Open Explorer <ChevronRight size={16}/></a>
           </div>
-
-          <div className="market-table">
-            <div className="market-table-head">
-              <span>Market</span><span>Price</span><span>24h</span>
-            </div>
-            {marketGroups.map(([label, Icon, note]) => (
-              <div className="market-row" key={label}>
-                <div className="market-symbol">
-                  <span className="market-coin"><Icon size={18} /></span>
-                  <div><strong>{label}</strong><small>{note}</small></div>
-                </div>
-                <span className="market-offline">—</span>
-                <span className="market-feed-state">FEED OFFLINE</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="market-truth-note">
-            <ShieldCheck size={16} />
-            <span>No placeholder prices. Real market rows appear only when an approved provider is connected.</span>
+          <div className="dashboard-market-categories">
+            <a href="/markets"><Bitcoin size={19}/><div><strong>Crypto</strong><span>Bybit · Binance · OKX</span></div><b>LIVE</b></a>
+            <a href="/markets"><Radar size={19}/><div><strong>Memes / DEX</strong><span>DEX Screener discovery</span></div><b>LIVE</b></a>
+            <a href="/news"><Newspaper size={19}/><div><strong>News & Macro</strong><span>Global live feed</span></div><b>LIVE</b></a>
+            <a href="/connections"><Cable size={19}/><div><strong>Your exchanges</strong><span>{connected.length ? `${connected.length} connected` : "Connect account"}</span></div><b>{connected.length ? "READY" : "SET UP"}</b></a>
           </div>
         </section>
 
