@@ -117,11 +117,11 @@ export function LiveTradingTerminal({
     async function loadHistory() {
       try {
         const response = await fetch(
-          `https://api.bybit.com/v5/market/kline?category=spot&symbol=${encodeURIComponent(symbol)}&interval=1&limit=100`,
+          `https://www.okx.com/api/v5/market/candles?instId=${encodeURIComponent(symbol.slice(0,-4)+"-USDT")}&bar=1m&limit=100`,
           { cache: "no-store" },
         );
         const json = await response.json();
-        const list = Array.isArray(json?.result?.list) ? json.result.list : [];
+        const list = Array.isArray(json?.data) ? json.data : [];
         const next = list
           .map((row: string[]) => ({
             start: Number(row[0]),
@@ -157,46 +157,63 @@ export function LiveTradingTerminal({
 
     const connect = () => {
       if (stopped.current) return;
-      ws = new WebSocket("wss://stream.bybit.com/v5/public/spot");
+      ws = new WebSocket("wss://ws.okx.com:8443/ws/v5/public");
 
       ws.onopen = () => {
         setStatus("live");
+        const venueId = symbol.endsWith("USDT") ? symbol.slice(0, -4) + "-USDT" : symbol;
         ws?.send(
           JSON.stringify({
             op: "subscribe",
             args: [
-              `tickers.${symbol}`,
-              `publicTrade.${symbol}`,
-              `orderbook.50.${symbol}`,
-              `kline.1.${symbol}`,
+              { channel: "tickers", instId: venueId },
+              { channel: "trades", instId: venueId },
+              { channel: "books5", instId: venueId },
             ],
           }),
         );
         heartbeat = window.setInterval(() => {
-          if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ op: "ping" }));
+          if (ws?.readyState === WebSocket.OPEN) ws.send("ping");
         }, 20000);
       };
 
       ws.onmessage = (event) => {
+        if (event.data === "pong") return;
         try {
           const message = JSON.parse(String(event.data));
-          const topic = String(message.topic ?? "");
+          const channel = String(message?.arg?.channel ?? "");
+          const data = Array.isArray(message?.data) ? message.data : [];
 
-          if (topic === `tickers.${symbol}`) {
-            const raw = Array.isArray(message.data) ? message.data[0] : message.data;
-            if (raw) setTicker((current) => ({ ...current, ...raw }));
+          if (channel === "tickers" && data.length) {
+            const raw = data[0] ?? {};
+            const last = Number(raw.last);
+            const open = Number(raw.open24h);
+            const change = Number.isFinite(last) && Number.isFinite(open) && open !== 0
+              ? (last - open) / open
+              : 0;
+            setTicker({
+              symbol,
+              lastPrice: String(raw.last ?? ""),
+              price24hPcnt: String(change),
+              highPrice24h: String(raw.high24h ?? ""),
+              lowPrice24h: String(raw.low24h ?? ""),
+              volume24h: String(raw.vol24h ?? ""),
+              turnover24h: String(raw.volCcy24h ?? ""),
+              bid1Price: String(raw.bidPx ?? ""),
+              ask1Price: String(raw.askPx ?? ""),
+            });
           }
 
-          if (topic === `publicTrade.${symbol}` && Array.isArray(message.data)) {
-            const incoming = message.data
+          if (channel === "trades") {
+            const incoming = data
               .slice(-20)
               .reverse()
               .map((row: any) => ({
-                id: String(row.i ?? `${row.T}-${row.p}-${row.v}`),
-                side: String(row.S ?? ""),
-                price: Number(row.p),
-                size: Number(row.v),
-                time: Number(row.T ?? Date.now()),
+                id: String(row.tradeId ?? `${row.ts}-${row.px}-${row.sz}`),
+                side: String(row.side ?? "").toLowerCase() === "buy" ? "Buy" : "Sell",
+                price: Number(row.px),
+                size: Number(row.sz),
+                time: Number(row.ts ?? Date.now()),
               }));
             setTrades((current) => {
               const seen = new Set<string>();
@@ -206,44 +223,17 @@ export function LiveTradingTerminal({
             });
           }
 
-          if (topic === `orderbook.50.${symbol}`) {
-            const data = message.data ?? {};
-            const bids = Array.isArray(data.b) ? data.b : [];
-            const asks = Array.isArray(data.a) ? data.a : [];
-            if (message.type === "snapshot") {
-              setBook({
-                bids: bids.map((row: string[]) => [Number(row[0]), Number(row[1])]).slice(0, 18),
-                asks: asks.map((row: string[]) => [Number(row[0]), Number(row[1])]).slice(0, 18),
-              });
-            } else {
-              setBook((current) => ({
-                bids: mergeLevels(current.bids, bids, true),
-                asks: mergeLevels(current.asks, asks, false),
-              }));
-            }
-          }
-
-          if (topic === `kline.1.${symbol}` && Array.isArray(message.data)) {
-            const row = message.data[0];
-            const candle: Candle = {
-              start: Number(row.start),
-              open: Number(row.open),
-              high: Number(row.high),
-              low: Number(row.low),
-              close: Number(row.close),
-              volume: Number(row.volume),
-            };
-            if (!Number.isFinite(candle.start)) return;
-            setCandles((current) => {
-              const index = current.findIndex((item) => item.start === candle.start);
-              const next = [...current];
-              if (index >= 0) next[index] = candle;
-              else next.push(candle);
-              return next.sort((a, b) => a.start - b.start).slice(-120);
+          if (channel === "books5" && data.length) {
+            const row = data[0] ?? {};
+            const bids = Array.isArray(row.bids) ? row.bids : [];
+            const asks = Array.isArray(row.asks) ? row.asks : [];
+            setBook({
+              bids: bids.map((level: string[]) => [Number(level[0]), Number(level[1])]).filter((level: number[]) => Number.isFinite(level[0]) && Number.isFinite(level[1])).slice(0, 18) as [number, number][],
+              asks: asks.map((level: string[]) => [Number(level[0]), Number(level[1])]).filter((level: number[]) => Number.isFinite(level[0]) && Number.isFinite(level[1])).slice(0, 18) as [number, number][],
             });
           }
         } catch {
-          // Ignore heartbeat acknowledgements and malformed provider frames.
+          // Ignore provider control frames.
         }
       };
 
@@ -288,12 +278,12 @@ export function LiveTradingTerminal({
         ? { href: "/paper", label: "Create paper account" }
         : !riskReady
           ? { href: "/risk", label: "Configure risk first" }
-          : { href: "/ai", label: "Create paper intent through AI / risk" }
+          : { href: "/ai?symbol=" + encodeURIComponent(symbol), label: "Analyze with AI / risk" }
       : !hasConnection
         ? { href: "/connections", label: "Connect exchange account" }
         : !riskReady
           ? { href: "/risk", label: "Configure deterministic risk" }
-          : { href: "/ai", label: "Route live intent through AI / risk" };
+          : { href: "/ai?symbol=" + encodeURIComponent(symbol), label: "Route through AI / risk" };
 
   return (
     <section className="terminal-shell">
@@ -322,7 +312,7 @@ export function LiveTradingTerminal({
           <span className="terminal-coin">{symbol.slice(0, 1)}</span>
           <div>
             <strong>{symbol.replace("USDT", "/USDT")}</strong>
-            <small>UNIFIED PUBLIC SPOT</small>
+            <small>UTAI UNIFIED SPOT</small>
           </div>
         </div>
         <div className="terminal-last">
