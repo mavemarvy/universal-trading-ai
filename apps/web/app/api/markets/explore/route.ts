@@ -54,23 +54,58 @@ async function fetchJson(url: string, timeout = 7000) {
     signal: AbortSignal.timeout(timeout),
     headers: { "User-Agent": "UniversalTradingAI/1.0 market-discovery" },
   });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) throw new Error("HTTP " + response.status);
   return response.json();
 }
 
-async function bybitAssets() {
-  const [tickersPayload, instrumentsPayload] = await Promise.all([
+async function bybitAssets(): Promise<CexAsset[]> {
+  const [tickersResult, instrumentsResult] = await Promise.allSettled([
     fetchJson("https://api.bybit.com/v5/market/tickers?category=spot"),
     fetchJson("https://api.bybit.com/v5/market/instruments-info?category=spot"),
   ]);
 
+  if (tickersResult.status !== "fulfilled") throw tickersResult.reason;
+
   const launches = new Map<string, number | null>();
-  for (const row of instrumentsPayload?.result?.list ?? []) {
-    launches.set(String(row.symbol ?? ""), n(row.launchTime));
+  if (instrumentsResult.status === "fulfilled") {
+    for (const row of instrumentsResult.value?.result?.list ?? []) {
+      launches.set(String(row.symbol ?? ""), n(row.launchTime));
+    }
   }
 
   const assets: CexAsset[] = [];
-  for (const row of tickersPayload?.result?.list ?? []) {
+  for (const row of tickersResult.value?.result?.list ?? []) {
+    const symbol = String(row.symbol ?? "");
+    if (!symbol.endsWith("USDT")) continue;
+    const { base, quote } = splitSymbol(symbol);
+    const change = n(row.price24hPcnt);
+    assets.push({
+      kind: "CEX",
+      symbol,
+      base,
+      quote,
+      price: n(row.lastPrice),
+      change24h: change == null ? null : change * 100,
+      turnover24h: n(row.turnover24h),
+      volume24h: n(row.volume24h),
+      launchTime: launches.get(symbol) ?? null,
+      venues: [{
+        venue: "BYBIT",
+        price: n(row.lastPrice),
+        change24h: change == null ? null : change * 100,
+        volume24h: n(row.volume24h),
+      }],
+    });
+  }
+  return assets;
+}
+
+async function binanceAssets(): Promise<CexAsset[]> {
+  const payload = await fetchJson("https://api.binance.com/api/v3/ticker/24hr");
+  if (!Array.isArray(payload)) return [];
+
+  const assets: CexAsset[] = [];
+  for (const row of payload) {
     const symbol = String(row.symbol ?? "");
     if (!symbol.endsWith("USDT")) continue;
     const { base, quote } = splitSymbol(symbol);
@@ -80,55 +115,95 @@ async function bybitAssets() {
       base,
       quote,
       price: n(row.lastPrice),
-      change24h: n(row.price24hPcnt) == null ? null : Number(row.price24hPcnt) * 100,
-      turnover24h: n(row.turnover24h),
-      volume24h: n(row.volume24h),
-      launchTime: launches.get(symbol) ?? null,
+      change24h: n(row.priceChangePercent),
+      turnover24h: n(row.quoteVolume),
+      volume24h: n(row.volume),
+      launchTime: null,
       venues: [{
-        venue: "BYBIT",
+        venue: "BINANCE",
         price: n(row.lastPrice),
-        change24h: n(row.price24hPcnt) == null ? null : Number(row.price24hPcnt) * 100,
-        volume24h: n(row.volume24h),
+        change24h: n(row.priceChangePercent),
+        volume24h: n(row.volume),
       }],
     });
   }
   return assets;
 }
 
-async function binanceQuotes() {
-  const payload = await fetchJson("https://api.binance.com/api/v3/ticker/24hr");
-  const map = new Map<string, VenueQuote>();
-  if (!Array.isArray(payload)) return map;
-  for (const row of payload) {
-    const symbol = String(row.symbol ?? "");
-    if (!symbol.endsWith("USDT")) continue;
-    map.set(symbol, {
-      venue: "BINANCE",
-      price: n(row.lastPrice),
-      change24h: n(row.priceChangePercent),
-      volume24h: n(row.volume),
-    });
-  }
-  return map;
-}
+async function okxAssets(): Promise<CexAsset[]> {
+  const [tickersResult, instrumentsResult] = await Promise.allSettled([
+    fetchJson("https://www.okx.com/api/v5/market/tickers?instType=SPOT"),
+    fetchJson("https://www.okx.com/api/v5/public/instruments?instType=SPOT"),
+  ]);
 
-async function okxQuotes() {
-  const payload = await fetchJson("https://www.okx.com/api/v5/market/tickers?instType=SPOT");
-  const map = new Map<string, VenueQuote>();
-  for (const row of payload?.data ?? []) {
+  if (tickersResult.status !== "fulfilled") throw tickersResult.reason;
+
+  const launches = new Map<string, number | null>();
+  if (instrumentsResult.status === "fulfilled") {
+    for (const row of instrumentsResult.value?.data ?? []) {
+      const instId = String(row.instId ?? "");
+      launches.set(instId.replaceAll("-", ""), n(row.listTime));
+    }
+  }
+
+  const assets: CexAsset[] = [];
+  for (const row of tickersResult.value?.data ?? []) {
     const instId = String(row.instId ?? "");
     if (!instId.endsWith("-USDT")) continue;
     const symbol = instId.replaceAll("-", "");
+    const { base, quote } = splitSymbol(symbol);
     const last = n(row.last);
     const open = n(row.open24h);
-    map.set(symbol, {
-      venue: "OKX",
+    const change = last != null && open != null && open !== 0 ? ((last - open) / open) * 100 : null;
+    assets.push({
+      kind: "CEX",
+      symbol,
+      base,
+      quote,
       price: last,
-      change24h: last != null && open != null && open !== 0 ? ((last - open) / open) * 100 : null,
+      change24h: change,
+      turnover24h: n(row.volCcy24h),
       volume24h: n(row.vol24h),
+      launchTime: launches.get(symbol) ?? null,
+      venues: [{
+        venue: "OKX",
+        price: last,
+        change24h: change,
+        volume24h: n(row.vol24h),
+      }],
     });
   }
-  return map;
+  return assets;
+}
+
+function mergeCex(groups: CexAsset[][]) {
+  const merged = new Map<string, CexAsset>();
+
+  for (const group of groups) {
+    for (const asset of group) {
+      const existing = merged.get(asset.symbol);
+      if (!existing) {
+        merged.set(asset.symbol, {
+          ...asset,
+          venues: [...asset.venues],
+        });
+        continue;
+      }
+
+      const venueNames = new Set(existing.venues.map((venue) => venue.venue));
+      for (const venue of asset.venues) {
+        if (!venueNames.has(venue.venue)) existing.venues.push(venue);
+      }
+
+      if (existing.price == null && asset.price != null) existing.price = asset.price;
+      if (existing.change24h == null && asset.change24h != null) existing.change24h = asset.change24h;
+      existing.turnover24h = Math.max(Number(existing.turnover24h ?? 0), Number(asset.turnover24h ?? 0)) || null;
+      existing.volume24h = Math.max(Number(existing.volume24h ?? 0), Number(asset.volume24h ?? 0)) || null;
+      existing.launchTime = Math.max(Number(existing.launchTime ?? 0), Number(asset.launchTime ?? 0)) || null;
+    }
+  }
+
+  return [...merged.values()].filter((asset) => asset.price != null);
 }
 
 async function dexBoosted() {
@@ -149,11 +224,13 @@ async function dexBoosted() {
   await Promise.all([...grouped.entries()].map(async ([chain, addresses]) => {
     try {
       const payload = await fetchJson(
-        `https://api.dexscreener.com/tokens/v1/${encodeURIComponent(chain)}/${addresses.slice(0, 30).map(encodeURIComponent).join(",")}`,
+        "https://api.dexscreener.com/tokens/v1/" +
+        encodeURIComponent(chain) + "/" +
+        addresses.slice(0, 30).map(encodeURIComponent).join(","),
       );
       if (Array.isArray(payload)) pairs.push(...payload);
     } catch {
-      // One DEX chain failing must not take down the whole market explorer.
+      // One chain failing must not take down the whole explorer.
     }
   }));
 
@@ -167,11 +244,9 @@ async function dexBoosted() {
     }
   }
 
-  const boostIndex = new Map(
-    items.map((item: any) => [String(item.tokenAddress ?? ""), item]),
-  );
-
+  const boostIndex = new Map(items.map((item: any) => [String(item.tokenAddress ?? ""), item]));
   const result: DexAsset[] = [];
+
   for (const [address, pair] of best) {
     const boost: any = boostIndex.get(address);
     result.push({
@@ -231,22 +306,19 @@ export async function GET(request: NextRequest) {
 
   const [bybitResult, binanceResult, okxResult, dexResult, dexSearchResult] = await Promise.allSettled([
     bybitAssets(),
-    binanceQuotes(),
-    okxQuotes(),
+    binanceAssets(),
+    okxAssets(),
     dexBoosted(),
     dexSearch(q),
   ]);
 
-  const cex = bybitResult.status === "fulfilled" ? bybitResult.value : [];
-  const binance = binanceResult.status === "fulfilled" ? binanceResult.value : new Map<string, VenueQuote>();
-  const okx = okxResult.status === "fulfilled" ? okxResult.value : new Map<string, VenueQuote>();
+  const bybit = bybitResult.status === "fulfilled" ? bybitResult.value : [];
+  const binance = binanceResult.status === "fulfilled" ? binanceResult.value : [];
+  const okx = okxResult.status === "fulfilled" ? okxResult.value : [];
 
-  for (const asset of cex) {
-    const b = binance.get(asset.symbol);
-    const o = okx.get(asset.symbol);
-    if (b) asset.venues.push(b);
-    if (o) asset.venues.push(o);
-  }
+  // OKX is first because it is currently the most reliable server-side source in our Vercel region.
+  // The UI still merges all reachable venues per symbol.
+  const cex = mergeCex([okx, bybit, binance]);
 
   const filtered = q
     ? cex.filter((asset) =>
