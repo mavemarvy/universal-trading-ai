@@ -248,11 +248,11 @@ export default async function Dashboard() {
           <div className="ai-strip-icon"><BrainCircuit size={24} /></div>
           <div className="ai-strip-copy">
             <span className="eyebrow-label">AI COPILOT</span>
-            <strong>{intents.length ? `${intents.length} evidence-backed setup${intents.length === 1 ? "" : "s"} available` : "Waiting for verified market evidence"}</strong>
+            <strong>{intents.length ? `${intents.length} evidence-backed setup${intents.length === 1 ? "" : "s"} available` : "Run live market analysis now"}</strong>
             <p>
               {intents.length
                 ? "Every setup still passes portfolio, deterministic risk and platform capability checks before any execution."
-                : "Connect an approved market-data source to unlock live analysis. UTAI will not invent prices or signals."}
+                : "Open AI Trade, choose a live market, and run the active quant analyzer. A TradeIntent is created only when you explicitly save the analysis."}
             </p>
           </div>
           <a href="/ai" className="ai-strip-arrow" aria-label="Open AI opportunities"><ChevronRight size={22} /></a>
