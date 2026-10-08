@@ -322,7 +322,7 @@ export function LiveTradingTerminal({
           <span className="terminal-coin">{symbol.slice(0, 1)}</span>
           <div>
             <strong>{symbol.replace("USDT", "/USDT")}</strong>
-            <small>BYBIT PUBLIC SPOT</small>
+            <small>UNIFIED PUBLIC SPOT</small>
           </div>
         </div>
         <div className="terminal-last">
