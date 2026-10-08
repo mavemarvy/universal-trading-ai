@@ -30,3 +30,41 @@ export async function createPaperAccount(formData: FormData) {
   revalidatePath("/dashboard");
   redirect("/paper?created=1");
 }
+
+
+export async function refreshPaperPosition(formData: FormData) {
+  const { supabase } = await requireUser();
+  const positionId = String(formData.get("position_id") ?? "");
+
+  const { data, error } = await supabase.functions.invoke("quant-trade-analysis", {
+    body: { action: "paper_refresh", positionId },
+  });
+
+  if (error || data?.error || data?.ok !== true) {
+    redirect("/paper?error=" + encodeURIComponent(String(data?.error || error?.message || "Position refresh failed").slice(0, 160)));
+  }
+
+  revalidatePath("/paper");
+  revalidatePath("/portfolio");
+  revalidatePath("/dashboard");
+  redirect("/paper?refreshed=1");
+}
+
+export async function closePaperPosition(formData: FormData) {
+  const { supabase } = await requireUser();
+  const positionId = String(formData.get("position_id") ?? "");
+
+  const { data, error } = await supabase.functions.invoke("quant-trade-analysis", {
+    body: { action: "paper_close", positionId },
+  });
+
+  if (error || data?.error || data?.ok !== true) {
+    redirect("/paper?error=" + encodeURIComponent(String(data?.error || error?.message || "Position close failed").slice(0, 160)));
+  }
+
+  revalidatePath("/paper");
+  revalidatePath("/portfolio");
+  revalidatePath("/dashboard");
+  revalidatePath("/journal");
+  redirect("/paper?closed=1");
+}
