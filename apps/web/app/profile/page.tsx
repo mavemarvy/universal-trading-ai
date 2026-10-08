@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Cable, Gauge, KeyRound, LogOut, Save, ShieldCheck, UserCircle } from "lucide-react";
+import { Bell, Cable, Gauge, KeyRound, LogOut, Newspaper, Save, ShieldCheck, UserCircle } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
 import { requireUser } from "@/lib/auth";
 import { logout, updateProfile } from "./actions";
@@ -27,7 +27,7 @@ export default async function ProfilePage({searchParams}:{searchParams:Promise<{
         <div className="route-panel-title"><KeyRound size={18}/><h3>Account shortcuts</h3></div>
         <div className="profile-link-grid">
           <Link href="/notifications"><Bell size={18}/><div><strong>Notifications</strong><span>{notificationCount} unread</span></div></Link>
-          <Link href="/connections"><Cable size={18}/><div><strong>Platform connections</strong><span>Broker / exchange access</span></div></Link>
+          <Link href="/connections"><Cable size={18}/><div><strong>Platform connections</strong><span>Broker / exchange access</span></div></Link><Link href="/news"><Newspaper size={18}/><div><strong>Live news</strong><span>Crypto, macro, forex and stocks</span></div></Link>
           <Link href="/risk"><Gauge size={18}/><div><strong>Risk center</strong><span>Limits and safety</span></div></Link>
           <Link href="/security"><ShieldCheck size={18}/><div><strong>Security</strong><span>Session and authentication</span></div></Link>
         </div>
