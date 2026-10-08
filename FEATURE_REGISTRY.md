@@ -1,6 +1,4 @@
-| F-44 | DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | Master creation prompt section 44: DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | apps/admin/app/providers; apps/admin/lib/provider-probes.ts | public provider probes + provider_health | admin provider operations | IN_PROGRESS | PARTIAL | Admin probes Bybit/Binance/OKX/GDELT public endpoints and distinguishes live probes from worker health; persistent failover and ingestion orchestration remain pending. |
-
-Source of truth: `docs/MASTER_CREATION_PROMPT.txt`. Status is conservative: scaffolds are not reported as working integrations. No feature is `TESTED` unless its relevant automated test exists and passes.
+| F-44 | DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | Master creation prompt section 44: DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | apps/web/app/api/markets; apps/web/app/api/news; apps/admin/app/providers; apps/admin/app/market-data | multiple public market/news sources + provider_health | user/admin market/news operations | IN_PROGRESS | PARTIAL | User market aggregation and Admin market-data operations use multiple public sources with failover semantics; live news and provider probes are exposed. Persistent ingestion/failover workers and on-chain provider orchestration remain partial. |
 
 | feature_id | feature_name | description | location | backend_dependencies | frontend_dependencies | status | test_status | notes |
 |---|---|---|---|---|---|---|---|---|
