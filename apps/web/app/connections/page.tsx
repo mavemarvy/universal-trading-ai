@@ -4,13 +4,14 @@ import {
   KeyRound,
   LockKeyhole,
   PlugZap,
+  RefreshCw,
   ShieldCheck,
   Unplug,
   WalletCards,
 } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
 import { requireUser } from "@/lib/auth";
-import { connectExchange, disconnectExchange } from "./actions";
+import { connectExchange, disconnectExchange, refreshExchange } from "./actions";
 
 const connectors = [
   {
@@ -48,7 +49,7 @@ function yes(value: unknown) {
 export default async function ConnectionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ connected?: string; disconnected?: string; error?: string }>;
+  searchParams: Promise<{ connected?: string; disconnected?: string; refreshed?: string; error?: string }>;
 }) {
   const query = await searchParams;
   const { supabase, userId, displayName, notificationCount } = await requireUser();
