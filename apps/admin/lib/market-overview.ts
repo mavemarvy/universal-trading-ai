@@ -10,8 +10,7 @@ async function get(url:string){
 
 export async function fetchMarketOverview(){
   const started=Date.now();
-  const [bybit,binance,okx,boosts]=await Promise.allSettled([
-    get("https://api.bybit.com/v5/market/tickers?category=spot"),
+  const [sourceA,sourceB,boosts]=await Promise.allSettled([
     get("https://api.binance.com/api/v3/ticker/24hr"),
     get("https://www.okx.com/api/v5/market/tickers?instType=SPOT"),
     get("https://api.dexscreener.com/token-boosts/top/v1"),
@@ -19,32 +18,24 @@ export async function fetchMarketOverview(){
 
   const venueMap=new Map<string,Quote[]>();
 
-  if(bybit.status==="fulfilled"){
-    for(const row of bybit.value?.result?.list??[]){
+  if(sourceA.status==="fulfilled"&&Array.isArray(sourceA.value)){
+    for(const row of sourceA.value){
       const symbol=String(row.symbol??"");
       if(!symbol.endsWith("USDT")) continue;
       const list=venueMap.get(symbol)??[];
-      list.push({venue:"BYBIT",symbol,price:n(row.lastPrice),change24h:n(row.price24hPcnt)==null?null:Number(row.price24hPcnt)*100,volume24h:n(row.volume24h),turnover24h:n(row.turnover24h)});
+      list.push({venue:"CEX-A",symbol,price:n(row.lastPrice),change24h:n(row.priceChangePercent),volume24h:n(row.volume),turnover24h:n(row.quoteVolume)});
       venueMap.set(symbol,list);
     }
   }
-  if(binance.status==="fulfilled"&&Array.isArray(binance.value)){
-    for(const row of binance.value){
-      const symbol=String(row.symbol??"");
-      if(!symbol.endsWith("USDT")) continue;
-      const list=venueMap.get(symbol)??[];
-      list.push({venue:"BINANCE",symbol,price:n(row.lastPrice),change24h:n(row.priceChangePercent),volume24h:n(row.volume)});
-      venueMap.set(symbol,list);
-    }
-  }
-  if(okx.status==="fulfilled"){
-    for(const row of okx.value?.data??[]){
+
+  if(sourceB.status==="fulfilled"){
+    for(const row of sourceB.value?.data??[]){
       const inst=String(row.instId??"");
       if(!inst.endsWith("-USDT")) continue;
       const symbol=inst.replaceAll("-","");
       const last=n(row.last),open=n(row.open24h);
       const list=venueMap.get(symbol)??[];
-      list.push({venue:"OKX",symbol,price:last,change24h:last!=null&&open!=null&&open!==0?((last-open)/open)*100:null,volume24h:n(row.vol24h)});
+      list.push({venue:"CEX-B",symbol,price:last,change24h:last!=null&&open!=null&&open!==0?((last-open)/open)*100:null,volume24h:n(row.vol24h),turnover24h:n(row.volCcy24h)});
       venueMap.set(symbol,list);
     }
   }
@@ -52,7 +43,7 @@ export async function fetchMarketOverview(){
   const cex=[...venueMap.entries()].map(([symbol,venues])=>({
     symbol,
     venues,
-    primary:venues.find(v=>v.venue==="BYBIT")??venues[0],
+    primary:[...venues].sort((a,b)=>Number(b.turnover24h??0)-Number(a.turnover24h??0))[0]??venues[0],
     venueCount:venues.length,
     maxPrice:Math.max(...venues.map(v=>v.price??0)),
     minPrice:Math.min(...venues.filter(v=>v.price!=null).map(v=>v.price as number)),
@@ -90,10 +81,9 @@ export async function fetchMarketOverview(){
     checkedAt:new Date().toISOString(),
     latencyMs:Date.now()-started,
     sources:{
-      bybit:bybit.status==="fulfilled",
-      binance:binance.status==="fulfilled",
-      okx:okx.status==="fulfilled",
-      dexscreener:boosts.status==="fulfilled",
+      "cex-a":sourceA.status==="fulfilled",
+      "cex-b":sourceB.status==="fulfilled",
+      "dex":boosts.status==="fulfilled",
     },
     cex,
     dex:dex.sort((a,b)=>Number(b.volume24h??0)-Number(a.volume24h??0)),
