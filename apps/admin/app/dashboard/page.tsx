@@ -11,6 +11,7 @@ import {
   KeyRound,
   LayoutDashboard,
   Network,
+  Newspaper,
   RadioTower,
   ScrollText,
   Settings2,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { requireAdmin } from "@/lib/auth";
 import { AdminLiveActivity } from "@/components/admin-live-activity";
+import { probePublicProviders } from "@/lib/provider-probes";
 
 type HealthRow = {
   component: string;
@@ -68,7 +70,9 @@ const nav = [
   ["Overview", LayoutDashboard, "/dashboard"],
   ["Users", Users, "/users"],
   ["Platforms", Cable, "/platforms"],
+  ["Connections", Cable, "/connections"],
   ["Data & Providers", RadioTower, "/providers"],
+  ["News & Macro", Newspaper, "/news"],
   ["AI & Models", BrainCircuit, "/ai"],
   ["Strategies", Bot, "/strategies"],
   ["Risk Control", Gauge, "/risk"],
@@ -109,6 +113,9 @@ export default async function AdminDashboard() {
     strategiesResult,
     auditResult,
     connectionsResult,
+    liveProviderProbes,
+    paperAccountsResult,
+    intentsResult,
   ] = await Promise.all([
     supabase.from("system_health").select("component,status,checked_at").order("component"),
     supabase.from("feature_registry").select("feature_id,feature_name,status,test_status").order("feature_id"),
@@ -127,6 +134,9 @@ export default async function AdminDashboard() {
       .order("created_at", { ascending: false })
       .limit(8),
     supabase.from("platform_connections").select("id,status,last_health_at"),
+    probePublicProviders(),
+    supabase.from("paper_accounts").select("id", { count: "exact", head: true }),
+    supabase.from("trade_intents").select("id", { count: "exact", head: true }),
   ]);
 
   const health = (healthResult.data ?? []) as HealthRow[];
@@ -149,6 +159,9 @@ export default async function AdminDashboard() {
     ["CONNECTED", "HEALTHY", "ACTIVE"].includes(String(item.status).toUpperCase())
   ).length;
   const activeStrategies = strategies.filter((item) => item.enabled).length;
+  const publicFeedsLive = liveProviderProbes.filter((item) => item.ok).length;
+  const paperAccounts = paperAccountsResult.count ?? 0;
+  const tradeIntentCount = intentsResult.count ?? 0;
 
   return (
     <main className="control-shell">
@@ -389,10 +402,10 @@ export default async function AdminDashboard() {
             </div>
             <div className="mini-stats">
               <div><span>Models</span><strong>{models.length}</strong></div>
+              <div><span>TradeIntents</span><strong>{tradeIntentCount}</strong></div>
               <div><span>Strategies</span><strong>{strategies.length}</strong></div>
-              <div><span>Enabled</span><strong>{activeStrategies}</strong></div>
             </div>
-            <p className="panel-copy">Registry metadata is real. Provider-backed inference stays unavailable until model services are configured and verified.</p>
+            <p className="panel-copy">The local ML/quant analysis path is active and persists TradeIntents. Full specialist model services remain separately governed and fail-closed until configured.</p>
           </section>
 
           <section className="panel span-7" id="features">
@@ -459,14 +472,14 @@ export default async function AdminDashboard() {
               <Zap size={21} />
             </div>
             <div className="readiness-stack">
-              <div><span>Market feeds</span><strong>NOT CONFIGURED</strong></div>
+              <div><span>Public market feeds</span><strong>{publicFeedsLive}/{liveProviderProbes.length} LIVE</strong></div>
               <div><span>Execution workers</span><strong>NOT VERIFIED</strong></div>
-              <div><span>Paper mode</span><strong>FOUNDATION READY</strong></div>
+              <div><span>Paper accounts</span><strong>{paperAccounts} ACTIVE</strong></div>
               <div><span>Live automation</span><strong>FAIL-CLOSED</strong></div>
             </div>
             <div className="notice">
               <AlertTriangle size={17} />
-              <p>No fabricated market prices are rendered while live providers are unavailable.</p>
+              <p>Public market data and paper execution are active; real-money automation remains blocked until persistent execution workers and approved adapters are verified.</p>
             </div>
           </section>
 
