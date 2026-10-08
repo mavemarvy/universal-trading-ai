@@ -66,3 +66,23 @@ export async function disconnectExchange(formData: FormData) {
   revalidatePath("/ai");
   redirect("/connections?disconnected=1");
 }
+
+
+export async function refreshExchange(formData: FormData) {
+  const { supabase } = await requireUser();
+  const connectionId = String(formData.get("connection_id") ?? "");
+
+  const { data, error } = await supabase.functions.invoke("exchange-connection", {
+    body: { action: "refresh", connectionId },
+  });
+
+  if (error || data?.error || data?.ok !== true) {
+    redirect("/connections?error=" + message(data?.error || error?.message || "Account refresh failed."));
+  }
+
+  revalidatePath("/connections");
+  revalidatePath("/dashboard");
+  revalidatePath("/ai");
+  revalidatePath("/portfolio");
+  redirect("/connections?refreshed=1");
+}
