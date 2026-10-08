@@ -1,4 +1,4 @@
-# Feature Registry
+| F-44 | DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | Master creation prompt section 44: DATA/NEWS/ON-CHAIN PROVIDER STRATEGY | apps/admin/app/providers; apps/admin/lib/provider-probes.ts | public provider probes + provider_health | admin provider operations | IN_PROGRESS | PARTIAL | Admin probes Bybit/Binance/OKX/GDELT public endpoints and distinguishes live probes from worker health; persistent failover and ingestion orchestration remain pending. |
 
 Source of truth: `docs/MASTER_CREATION_PROMPT.txt`. Status is conservative: scaffolds are not reported as working integrations. No feature is `TESTED` unless its relevant automated test exists and passes.
 
