@@ -49,29 +49,22 @@ async function probeJson(
 export async function probePublicProviders(): Promise<ProviderProbe[]> {
   return Promise.all([
     probeJson(
-      "BYBIT_PUBLIC",
-      "Bybit Public Market Data",
-      "MARKET_DATA",
-      "https://api.bybit.com/v5/market/time",
-      (data) => data?.retCode === 0,
-    ),
-    probeJson(
-      "BINANCE_PUBLIC",
-      "Binance Public Market Data",
+      "CEX_PUBLIC_A",
+      "Public CEX Feed A",
       "MARKET_DATA",
       "https://api.binance.com/api/v3/time",
       (data) => Number.isFinite(Number(data?.serverTime)),
     ),
     probeJson(
-      "OKX_PUBLIC",
-      "OKX Public Market Data",
+      "CEX_PUBLIC_B",
+      "Public CEX Feed B",
       "MARKET_DATA",
       "https://www.okx.com/api/v5/public/time",
       (data) => data?.code === "0" && Array.isArray(data?.data),
     ),
     probeJson(
-      "GDELT_NEWS",
-      "GDELT Market News",
+      "NEWS_PUBLIC_A",
+      "Global Market News Feed",
       "NEWS",
       "https://api.gdeltproject.org/api/v2/doc/doc?query=bitcoin&mode=artlist&format=json&timespan=1h&maxrecords=1&sort=datedesc",
       (data) => Array.isArray(data?.articles),
