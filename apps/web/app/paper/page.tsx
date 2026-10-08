@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CircleDollarSign, Plus, ReceiptText, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
 import { TradingAppShell } from "@/components/trading-app-shell";
+import { PaperPositionBoard } from "@/components/paper-position-board";
 import { requireUser } from "@/lib/auth";
 import { closePaperPosition, createPaperAccount, refreshPaperPosition } from "./actions";
 
@@ -222,6 +223,8 @@ export default async function PaperPage({
           ) : null}
         </div>
       </section>
+
+      {positions?.length ? <PaperPositionBoard positions={positions as any} /> : null}
 
       <section className="route-panel">
         <div className="route-panel-title">
